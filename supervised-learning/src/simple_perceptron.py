@@ -10,9 +10,9 @@ class SimplePerceptron():
     
     def _get_input_with_bias(self, training_input):
         training_input = np.array(training_input)
-        if training_input.ndim == 1:  # If input is a single row, reshape to 2D
+        if training_input.ndim == 1:  
             training_input = training_input.reshape(1, -1)
-        bias = np.ones((training_input.shape[0], 1), dtype=int)  # Create bias column
+        bias = np.ones((training_input.shape[0], 1), dtype=int)  
         return np.hstack([bias, training_input])  
         
     def calculate_error(self,expected,output):
