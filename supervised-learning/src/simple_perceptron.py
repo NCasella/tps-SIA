@@ -5,7 +5,7 @@ class SimplePerceptron():
     def __init__(self,learning_rate:float=1e-4,training_input:list=None,training_output: list=None): 
         self.learning_rate=learning_rate
         self.training_input=self._get_input_with_bias(training_input)
-        self.weights=[ random.uniform(0,0.0001) for w in range(self.training_input.shape[1]) ]
+        self.weights=[ random.uniform(-0.5,0.5) for w in range(self.training_input.shape[1]) ]
         self.training_output=training_output
     
     def _get_input_with_bias(self, training_input):
@@ -30,7 +30,7 @@ class SimplePerceptron():
 
     
     def train_perceptron(self,epochs:int,epsilon:float):
-        convergence:bool=False
+        convergence:bool=True
         for epoch in range(epochs):
             for µ in range(len(self.training_input)): #cada x^µ
                 hµ:float=self.training_input[μ]@self.weights
@@ -38,9 +38,7 @@ class SimplePerceptron():
                 for i,w_i in enumerate(self.weights):
                     self.weights[i]=w_i+self.learning_rate*(self.training_output[µ]-o_h)*self.calculate_derivate(hμ)*self.training_input[μ][i]
                 error=self.calculate_error(expected=self.training_output[μ],output=o_h)                                     #^^^^^^^^^^^^^^^^^^ (X^µ)_i
-                convergence=error<epsilon
-                if convergence:
-                    break
+                convergence=error<epsilon #TODO: ver que hacer con el break
         if convergence:
             print("se llego a convergencia ")
         else:
