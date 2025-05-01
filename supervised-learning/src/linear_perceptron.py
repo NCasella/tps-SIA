@@ -1,8 +1,8 @@
-from simple_perceptron import SimplePerceptron
+from src.simple_perceptron import SimplePerceptron
 
 class LinearPerceptron(SimplePerceptron):
     
-    def compute_activation(hμ):
+    def compute_activation(self,hμ):
         return hμ
     
     def calculate_error(self,expected, output):

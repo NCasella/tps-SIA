@@ -1,4 +1,4 @@
-from simple_perceptron import LinearPerceptron
+from src.linear_perceptron import LinearPerceptron
 
 
 class NonLinearPerceptron(LinearPerceptron):
