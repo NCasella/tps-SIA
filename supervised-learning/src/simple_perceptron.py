@@ -32,14 +32,18 @@ class SimplePerceptron():
     def train_perceptron(self,epochs:int,epsilon:float):
         convergence:bool=True
         for epoch in range(epochs):
+            total_error=0
             for µ in range(len(self.training_input)): #cada x^µ
                 hµ:float=self.training_input[μ]@self.weights
                 o_h=self.compute_activation(hμ)
                 for i,w_i in enumerate(self.weights):
                     self.weights[i]=w_i+self.learning_rate*(self.training_output[µ]-o_h)*self.calculate_derivate(hμ)*self.training_input[μ][i]
-                error=self.calculate_error(expected=self.training_output[μ],output=o_h)                                     #^^^^^^^^^^^^^^^^^^ (X^µ)_i
-                convergence=error<epsilon #TODO: ver que hacer con el break
+                error=self.calculate_error(expected=self.training_output[μ],output=o_h)                                      #^^^^^^^^^^^^^^^^^^ (x^µ)_i
+                total_error+=error
+            convergence=total_error<epsilon #TODO: ver si esta bien?
+            if convergence:
+                break
         if convergence:
-            print("se llego a convergencia ")
+            print(f"se llego a convergencia")
         else:
             print("no se llego a convergencia :(")
