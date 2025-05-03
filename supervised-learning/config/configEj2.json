@@ -3,7 +3,7 @@
     "epsilon":2e-2,
     "learning_rate":5e-2,
     "training_file_path":"training/TP3-ej2-conjunto.csv",
-    "perceptron_type":"linear",
+    "perceptron_type":"non_linear",
     "activation_function":"tanh",
     "beta":1
 
