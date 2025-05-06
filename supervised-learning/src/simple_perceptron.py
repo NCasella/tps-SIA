@@ -26,7 +26,7 @@ class SimplePerceptron():
     
     def predict_output(self, input):
         x_with_bias = self._get_input_with_bias(input)
-        return self.compute_activation(x_with_bias @ np.array(self.weights))
+        return self.compute_activation(float(x_with_bias @ self.weights))
 
     
     def train_perceptron(self,epochs:int,epsilon:float):
@@ -44,6 +44,6 @@ class SimplePerceptron():
             if convergence:
                 break
         if convergence:
-            print(f"se llego a convergencia")
+            print(f"se llego a convergencia en epoch {epoch}")
         else:
             print("no se llego a convergencia :(")
