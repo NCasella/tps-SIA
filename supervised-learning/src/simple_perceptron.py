@@ -6,7 +6,7 @@ class SimplePerceptron():
         self.learning_rate=learning_rate
         self.training_input=self._get_input_with_bias(training_input)
         self.weights=[ random.uniform(-0.5,0.5) for w in range(self.training_input.shape[1]) ]
-        self.training_output=training_output
+        self.training_output=np.array(training_output)
     
     def _get_input_with_bias(self, training_input):
         training_input = np.array(training_input)
@@ -41,9 +41,13 @@ class SimplePerceptron():
                 error=self.calculate_error(expected=self.training_output[μ],output=o_h)                                      #^^^^^^^^^^^^^^^^^^ (x^µ)_i
                 total_error+=error
             convergence=total_error<epsilon #TODO: ver si esta bien?
-            #random.shuffle(self.training_input) TODO: arreglar mezcla de input y output de la misma manera
             if convergence:
                 break
+            p=np.random.permutation(len(self.training_input))
+            breakpoint()
+            self.training_input=self.training_input[p]
+            self.training_output=self.training_output[p]
+            
         if convergence:
             print(f"se llego a convergencia en epoch {epoch}")
         else:
