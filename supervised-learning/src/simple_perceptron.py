@@ -44,7 +44,6 @@ class SimplePerceptron():
             if convergence:
                 break
             p=np.random.permutation(len(self.training_input))
-            breakpoint()
             self.training_input=self.training_input[p]
             self.training_output=self.training_output[p]
             
