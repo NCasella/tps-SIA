@@ -26,9 +26,9 @@ if __name__=="__main__":
          config=json.load(file)
     learning_rate=config["learning_rate"]
     epsilon=config["epsilon"]
-    beta=config["config"]
+    beta=config["beta"]
     problem=config["problem"]
-    function=config["function"]
+    function=config["activation_function"]
     epochs=config["epochs"]
     layers=config["layers"]
     training_file_path=config["training_file_path"]
