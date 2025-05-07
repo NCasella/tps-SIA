@@ -41,7 +41,7 @@ class SimplePerceptron():
                 error=self.calculate_error(expected=self.training_output[μ],output=o_h)                                      #^^^^^^^^^^^^^^^^^^ (x^µ)_i
                 total_error+=error
             convergence=total_error<epsilon #TODO: ver si esta bien?
-            random.shuffle(self.training_input)
+            #random.shuffle(self.training_input) TODO: arreglar mezcla de input y output de la misma manera
             if convergence:
                 break
         if convergence:
