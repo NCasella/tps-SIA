@@ -10,10 +10,31 @@ class MultilayerPerceptron(NonLinearPerceptron):
       for i in range(len(layers_structure)-1):
          self.weights.append(np.random.randn((layers_structure[i],layers_structure[i+1])) ) 
    
-   def train_perceptron(self, epochs, epsilon):   
-      raise NotImplementedError
-   def _feedfoward_propagation(self,input):
+   def train_perceptron(self, epochs, epsilon):
+      for epoch in range(epochs):
+         total_error = 0
+         for Xμ in self.training_input:
+            hμ=self.predict_output(Xμ)
+            #TODO
+         if total_error<epsilon:
+            print(f"Convergencia en epoch {epoch}")
+            return
+         print(f"epoch: {epoch} y Error:{total_error}")
+         permutation=np.random.permutation(len(self.training_input))
+         self.training_input=self.training_input[permutation]
+         self.training_output=self.training_output[permutation]
+      print("No convergencia :(")
+   
+   #feedfoward (?
+   def predict_output(self, input)->np.array:
+      h_o=np.vectorize(self.activation_function)
+      output=input
+      for weight_matrix in self.weights:
+         output=h_o(np.matmul(output,weight_matrix))
+      return output
+   
+   def _backtrack(self,output,expected)->list[np.matrix]:
       raise NotImplementedError
    
-   def _backtrack(self,expected,input):
-      raise NotImplementedError
+   def calculate_error(self, expected, output)->float:
+      return 0.5*np.square(output-expected).sum()
