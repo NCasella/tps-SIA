@@ -1,6 +1,8 @@
 import random
 import sys
 import json
+
+from src.optimizers.optimizers import get_optimizer
 from src.sigmoid_functions import get_sigmoid_function_and_derivate
 from src.multilayer_perceptron import MultilayerPerceptron
 import numpy as np
@@ -30,6 +32,11 @@ if __name__=="__main__":
     problem=config["problem"]
     function=config["activation_function"]
     epochs=config["epochs"]
+    optimizer_value=config["optimizer"]
+    optimizer_alpha=config["optimizer_alpha"]
+    optimizer_beta1=config["optimizer_beta_1"]
+    optimizer_beta2=config["optimizer_beta_2"]
+    optimizer_epsilon=config["optimizer_epsilon"]
     layers=config["layers"]
     training_file_path=config["training_file_path"]
     if problem=="XOR":
@@ -44,6 +51,10 @@ if __name__=="__main__":
     print(f"Input dataset: {input_dataset}")
     print(f"Expected outputs: {expected_outputs}")
     print(f"Layers: {layers}")
+
+    all_layers = np.concatenate(([len(input_dataset[0])], layers))
+
+    optimizer=get_optimizer(optimizer_value, learning_rate, optimizer_alpha, optimizer_beta1, optimizer_beta2, optimizer_epsilon, all_layers)
     
-    perceptron:MultilayerPerceptron =MultilayerPerceptron(learning_rate,input_dataset,expected_outputs,activation_function,activation_derivate,layers)
+    perceptron:MultilayerPerceptron =MultilayerPerceptron(learning_rate,input_dataset,expected_outputs,activation_function,activation_derivate,layers, optimizer)
     perceptron.train_perceptron(epochs=epochs,epsilon=epsilon)
