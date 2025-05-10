@@ -13,14 +13,14 @@ class MultilayerPerceptron(NonLinearPerceptron):
       for i in range(len(layers_structure)-1):
          self.weights.append(np.random.randn(layers_structure[i],layers_structure[i+1])) 
 
-      print(f"Pesos iniciales: {self.weights}")
+      # print(f"Pesos iniciales: {self.weights}")
    
    def train_perceptron(self, epochs, epsilon):
       for epoch in range(epochs):
          total_error = 0
          for Xμ in range(len(self.training_input)):
-            activations,partial_resuls =self.predict_output(self.training_input[Xμ])
-            print(f"Activations: {activations}")
+            activations,partial_resuls =self._feedfoward(self.training_input[Xμ])
+            # print(f"Activations: {activations}")
             # print(f"Partial results: {partial_resuls}")
             # print(f"Expected: {self.training_output[Xμ]}")
             self._backpropagate(partial_resuls, self.training_output[Xμ], activations)
@@ -34,8 +34,8 @@ class MultilayerPerceptron(NonLinearPerceptron):
          self.training_output=self.training_output[permutation]
       print("No convergencia :(")
    
-   #feedfoward (?
-   def predict_output(self, input)->tuple[np.array, list[np.array], list[np.array]]:
+   #feedfoward !!
+   def _feedfoward(self, input)->tuple[np.array, list[np.array], list[np.array]]:
       h_o=np.vectorize(self.activation_function)
       outputs=[input]
       partial_results=[]
@@ -70,10 +70,13 @@ class MultilayerPerceptron(NonLinearPerceptron):
          Vk = outputs[m - 1]
          for j in range(len(Vj)):
             delta = self.calculate_derivate(h_i[j]) * np.sum(delta_matrix[m + 1] * self.weights[m + 1][j])
-            # delta_matrix[m][j] = delta
             delta_matrix[m].append(delta)
             for k in range(len(Vk)):
                weight_matrix[k][j] += self.learning_rate * delta * Vk[k]
+   
+   def predict_output(self, input):
+      input_with_bias=self._get_input_with_bias(input)[0]
+      return self._feedfoward(input_with_bias)[0][-1]
 
 
    def calculate_error(self, expected, output)->float:
