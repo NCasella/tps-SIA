@@ -17,7 +17,7 @@ class MultilayerPerceptron(NonLinearPerceptron):
       for epoch in range(epochs):
          total_error = 0
          for Xμ in range(len(self.training_input)):
-            activations,partial_resuls =self.predict_output(self.training_input[Xμ])
+            activations,partial_resuls =self._feedfoward(self.training_input[Xμ])
             # print(f"Activations: {activations}")
             # print(f"Partial results: {partial_resuls}")
             # print(f"Expected: {self.training_output[Xμ]}")
@@ -32,8 +32,8 @@ class MultilayerPerceptron(NonLinearPerceptron):
          self.training_output=self.training_output[permutation]
       print("No convergencia :(")
    
-   #feedfoward (?
-   def predict_output(self, input)->tuple[np.array, list[np.array], list[np.array]]:
+   #feedfoward !!
+   def _feedfoward(self, input)->tuple[np.array, list[np.array], list[np.array]]:
       h_o=np.vectorize(self.activation_function)
       outputs=[input]
       partial_results=[]
@@ -73,6 +73,10 @@ class MultilayerPerceptron(NonLinearPerceptron):
             weight_vec = weight_matrix[j]
             for k in range(len(weight_vec)):
                weight_vec[k] += self.learning_rate * delta * Vk[k]
+   
+   def predict_output(self, input):
+      input_with_bias=self._get_input_with_bias(input)[0]
+      return self._feedfoward(input_with_bias)[0][-1]
 
 
    def calculate_error(self, expected, output)->float:
