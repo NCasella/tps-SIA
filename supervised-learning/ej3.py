@@ -17,10 +17,10 @@ def read_number_files(file,block_size=35):
 
 if __name__=="__main__":
     
-    xor_set=((-1,-1), (-1, 1), (1,-1), (1,1))
+    xor_set=[[-1,-1], [-1, 1], [1,-1], [1,1]]
     
-    dataset_outputs={"XOR":(-1, 1, 1, -1), "parity":[i%2 for i in range(9)] , "recognition":[i for i in range(9)]} 
-    
+    # por probabilidad 
+    dataset_outputs={"XOR":[[-1], [1], [1], [-1]], "parity":[i%2 for i in range(9)] , "recognition":[i for i in range(9)]} 
     
     with open(sys.argv[1],"r") as file:
          config=json.load(file)
@@ -40,6 +40,10 @@ if __name__=="__main__":
     activation_function,activation_derivate=get_sigmoid_function_and_derivate(beta,function)
     
     expected_outputs=dataset_outputs[config["problem"]]
+
+    print(f"Input dataset: {input_dataset}")
+    print(f"Expected outputs: {expected_outputs}")
+    print(f"Layers: {layers}")
     
     perceptron:MultilayerPerceptron =MultilayerPerceptron(learning_rate,input_dataset,expected_outputs,activation_function,activation_derivate,layers)
     perceptron.train_perceptron(epochs=epochs,epsilon=epsilon)
