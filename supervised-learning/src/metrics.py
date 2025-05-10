@@ -31,8 +31,11 @@ def _f1_score(matrix, label):
 
 
 def _true_positives(matrix, label):
-    return matrix[label][label]
+    return _recall(matrix, label)
 
 
 def _false_positives(matrix, label):
-    return sum(matrix[actual][label] for actual in matrix if actual != label)
+    fp = sum(matrix[actual][label] for actual in matrix if actual != label)
+    tn = sum(matrix[actual][actual] for actual in matrix if actual != label)
+    denominator = fp + tn
+    return fp / denominator if denominator else 0.0
