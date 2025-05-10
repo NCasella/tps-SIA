@@ -20,7 +20,7 @@ if __name__=="__main__":
     xor_set=[[0, 0], [0, 1], [1, 0], [1, 1]]
     
     # por probabilidad 
-    dataset_outputs={"XOR":[[0], [1], [1], [0]], "parity":[i%2 for i in range(9)] , "recognition":[i for i in range(9)]} 
+    dataset_outputs={"XOR":[[0], [1], [1], [0]], "parity":[[i%2] for i in range(10)] , "recognition":np.identity(10)} 
     
     with open(sys.argv[1],"r") as file:
          config=json.load(file)
