@@ -17,10 +17,10 @@ def read_number_files(file,block_size=35):
 
 if __name__=="__main__":
     
-    xor_set=[[-1,-1], [-1, 1], [1,-1], [1,1]]
+    xor_set=[[0, 0], [0, 1], [1, 0], [1, 1]]
     
     # por probabilidad 
-    dataset_outputs={"XOR":[[-1], [1], [1], [-1]], "parity":[i%2 for i in range(9)] , "recognition":[i for i in range(9)]} 
+    dataset_outputs={"XOR":[[0], [1], [1], [0]], "parity":[i%2 for i in range(9)] , "recognition":[i for i in range(9)]} 
     
     with open(sys.argv[1],"r") as file:
          config=json.load(file)

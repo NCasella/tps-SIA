@@ -12,13 +12,15 @@ class MultilayerPerceptron(NonLinearPerceptron):
       self.weights.append(np.random.randn(len(self.training_input[0]),layers_structure[0]))
       for i in range(len(layers_structure)-1):
          self.weights.append(np.random.randn(layers_structure[i],layers_structure[i+1])) 
+
+      print(f"Pesos iniciales: {self.weights}")
    
    def train_perceptron(self, epochs, epsilon):
       for epoch in range(epochs):
          total_error = 0
          for Xμ in range(len(self.training_input)):
             activations,partial_resuls =self.predict_output(self.training_input[Xμ])
-            # print(f"Activations: {activations}")
+            print(f"Activations: {activations}")
             # print(f"Partial results: {partial_resuls}")
             # print(f"Expected: {self.training_output[Xμ]}")
             self._backpropagate(partial_resuls, self.training_output[Xμ], activations)
@@ -61,7 +63,7 @@ class MultilayerPerceptron(NonLinearPerceptron):
       
       V_sizes = self.layers_structure[:-1][::-1]
       for idx in range(len(V_sizes)-1):
-         m = len(V_sizes) - idx - 1
+         m = -(idx + 2)
          Vj = outputs[m]
          h_i = h_is[m]
          weight_matrix = self.weights[m]
@@ -70,9 +72,8 @@ class MultilayerPerceptron(NonLinearPerceptron):
             delta = self.calculate_derivate(h_i[j]) * np.sum(delta_matrix[m + 1] * self.weights[m + 1][j])
             # delta_matrix[m][j] = delta
             delta_matrix[m].append(delta)
-            weight_vec = weight_matrix[j]
-            for k in range(len(weight_vec)):
-               weight_vec[k] += self.learning_rate * delta * Vk[k]
+            for k in range(len(Vk)):
+               weight_matrix[k][j] += self.learning_rate * delta * Vk[k]
 
 
    def calculate_error(self, expected, output)->float:
