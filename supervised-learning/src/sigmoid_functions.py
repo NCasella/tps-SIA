@@ -1,7 +1,8 @@
 import math
+import numpy as np
 
 def _tanh(beta,h):
-    return math.tanh(beta*h)
+    return np.tanh(beta*h)
 def _logistic(beta,h):
     return 1/(1+math.exp(-2*beta*h))
 def _relu(beta,h):
@@ -10,7 +11,7 @@ def _softplus(beta,h):
     return math.log(1+math.exp(h))
 
 def _tanh_derivate(beta,h):
-    return beta*(1-_tanh(beta,h)**2)
+    return beta*(1-_tanh(beta,h)**2.0)
 def _logistic_derivate(beta,h):
     return 2*beta*_logistic(beta,h)*(1-_logistic(beta,h))
 def _relu_derivate(beta,h):

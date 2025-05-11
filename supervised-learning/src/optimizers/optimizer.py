@@ -11,6 +11,6 @@ class Optimizer(ABC):
 
     # returns the Delta W for each weight
     @abstractmethod
-    def optimize(self, old_weight_adjustment:float, gradient_w:float, epoch: int, index: tuple[int,int,int]) -> float:
+    def optimize(self, old_weight_adjustment, gradient, index):
         raise NotImplementedError
     

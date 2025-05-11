@@ -52,8 +52,23 @@ if __name__=="__main__":
     print(f"Expected outputs: {expected_outputs}")
     print(f"Layers: {layers}")
 
-    all_layers = np.concatenate(([len(input_dataset[0])], layers))
-    optimizer=get_optimizer(optimizer_value, learning_rate, optimizer_alpha, optimizer_beta1, optimizer_beta2, optimizer_epsilon, all_layers)
+    input_size = len(input_dataset[0])
+    layer_shapes = []
+    current_size = input_size + 1
+    for layer_size in layers:
+        layer_shapes.append((current_size, layer_size))
+        current_size = layer_size + 1
+
+    optimizer = get_optimizer(
+        optimizer_value,
+        learning_rate,
+        optimizer_alpha,
+        optimizer_beta1,
+        optimizer_beta2,
+        optimizer_epsilon,
+        layer_shapes
+    )
+
     perceptron:MultilayerPerceptron =MultilayerPerceptron(learning_rate,input_dataset,expected_outputs,activation_function,activation_derivate,layers, optimizer)
     perceptron.train_perceptron(epochs=epochs,epsilon=epsilon)
     for input in input_dataset:
