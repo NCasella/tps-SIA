@@ -1,0 +1,16 @@
+{
+    "epochs":10000,
+    "epsilon":2e-2,
+    "learning_rate":1e-3,
+    "training_file_path":"training/TP3-ej3-digitos.txt",
+    "activation_function":"tanh",
+    "problem":"parity",
+    "optimizer":"adam",
+    "optimizer_alpha": 0.001,
+    "optimizer_beta_1": 0.9,
+    "optimizer_beta_2": 0.999,
+    "optimizer_epsilon": 1e-8,
+    "testing_set_size":6,
+    "beta":1,
+    "layers":[8, 6, 4, 1, 2]
+}
