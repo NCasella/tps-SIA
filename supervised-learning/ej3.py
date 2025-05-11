@@ -5,6 +5,7 @@ import json
 from src.optimizers.optimizers import get_optimizer
 from src.sigmoid_functions import get_sigmoid_function_and_derivate
 from src.multilayer_perceptron import MultilayerPerceptron
+from src.confusion_matrix import ConfusionMatrix
 import numpy as np
 import pandas as pd
 
@@ -39,14 +40,22 @@ if __name__=="__main__":
     optimizer_epsilon=config["optimizer_epsilon"]
     layers=config["layers"]
     training_file_path=config["training_file_path"]
+    test_indices = config["testing_indices"]
+    test_noise = config["test_noise"]
     if problem=="XOR":
         input_dataset=xor_set
     else:
         input_dataset=read_number_files(training_file_path)
     
     activation_function,activation_derivate=get_sigmoid_function_and_derivate(beta,function)
-    
+
     expected_outputs=dataset_outputs[config["problem"]]
+
+    testing_input = [input_dataset[i] for i in test_indices]
+    testing_output = [expected_outputs[i] for i in test_indices]
+
+    training_input = [input_dataset[i] for i in range(len(input_dataset)) if i not in test_indices]
+    training_output = [expected_outputs[i] for i in range(len(expected_outputs)) if i not in test_indices]
 
     print(f"Input dataset: {input_dataset}")
     print(f"Expected outputs: {expected_outputs}")
@@ -69,7 +78,36 @@ if __name__=="__main__":
         layer_shapes
     )
 
-    perceptron:MultilayerPerceptron =MultilayerPerceptron(learning_rate,input_dataset,expected_outputs,activation_function,activation_derivate,layers, optimizer)
+    perceptron:MultilayerPerceptron =MultilayerPerceptron(learning_rate,training_input,training_output,activation_function,activation_derivate,layers, optimizer)
     perceptron.train_perceptron(epochs=epochs,epsilon=epsilon)
-    for input in input_dataset:
-        print(f"Input: {input}, predicted: {perceptron.predict_output(input)}")
+
+    print("Training set")
+    for i,input in enumerate(training_input):
+        print(f"Input: {input}, predicted: {perceptron.predict_output(input)}, expected: {training_output[i]}")
+
+    print("Testing set:")
+    for j,input in enumerate(testing_input):
+        print(f"Input: {input}, predicted: {perceptron.predict_output(input)}, expected: {training_output[i]}")
+
+    noisy_set = []
+    for input in training_input:
+        noisy_input = []
+        for value in input:
+            if random.random() < test_noise:
+                noisy_input.append(1 - value)
+            else:
+                noisy_input.append(value)
+        noisy_set.append(noisy_input)
+
+    expected_values = np.argmax(expected_outputs, axis=1)
+    noisy_confusion_matrix = ConfusionMatrix(expected_values)
+
+    print(f"Noisy set ({test_noise}):")
+    for k, input in enumerate(noisy_set):
+        noisy_output = perceptron.predict_output(input)
+        max_index = np.argmax(noisy_output)
+        noisy_confusion_matrix.increment(expected_values[k], max_index)
+        print(f"Input: {input}, predicted: {max_index}, expected: {np.argmax(training_output[k])}")
+
+    print(f"Accuracy: {noisy_confusion_matrix.accuracy()}")
+

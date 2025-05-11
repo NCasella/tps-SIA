@@ -12,5 +12,7 @@
     "optimizer_alpha": 0.001,
     "optimizer_beta_1": 0.9,
     "optimizer_beta_2": 0.999,
-    "optimizer_epsilon": 1e-8
+    "optimizer_epsilon": 1e-8,
+    "testing_indices": [],
+    "test_noise": 0.0
 }
