@@ -23,6 +23,7 @@ class MultilayerPerceptron(NonLinearPerceptron):
       self.latest_adjustments = [np.zeros_like(w) for w in self.weights]
 
    def train_perceptron(self, epochs, epsilon):
+      error_history=[]
       for epoch in range(epochs):
          total_error = 0
          for Xμ in range(len(self.training_input)):
@@ -30,14 +31,16 @@ class MultilayerPerceptron(NonLinearPerceptron):
             activations,partial_results =self._feedfoward(inputs)
             self._backpropagate(partial_results, self.training_output[Xμ], activations)
             total_error += self.calculate_error(self.training_output[Xμ], activations[-1])
+         error_history.append(total_error)
          if total_error<epsilon:
             print(f"Convergencia en epoch {epoch}")
-            return
+            return error_history
          print(f"epoch: {epoch} y Error:{total_error}")
          permutation=np.random.permutation(len(self.training_input))
          self.training_input=self.training_input[permutation]
          self.training_output=self.training_output[permutation]
       print("No convergencia :(")
+      return error_history
    
    #feedfoward !!
    def _feedfoward(self, input)->tuple[list[Any],list[Any]]:

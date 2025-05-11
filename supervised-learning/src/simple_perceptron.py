@@ -30,6 +30,7 @@ class SimplePerceptron():
 
     
     def train_perceptron(self,epochs:int,epsilon:float):
+        error_history=[]
         convergence:bool=True
         for epoch in range(epochs):
             total_error=0
@@ -40,6 +41,7 @@ class SimplePerceptron():
                     self.weights[i]=w_i+self.learning_rate*(self.training_output[µ]-o_h)*self.calculate_derivate(hμ)*self.training_input[μ][i]
                 error=self.calculate_error(expected=self.training_output[μ],output=o_h)                                      #^^^^^^^^^^^^^^^^^^ (x^µ)_i
                 total_error+=error
+            error_history.append(total_error)
             convergence=total_error<epsilon #TODO: ver si esta bien?
             if convergence:
                 break
@@ -51,3 +53,4 @@ class SimplePerceptron():
             print(f"se llego a convergencia en epoch {epoch}")
         else:
             print("no se llego a convergencia :(")
+        return error_history
