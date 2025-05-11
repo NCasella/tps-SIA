@@ -19,10 +19,10 @@ def read_number_files(file,block_size=35):
 
 if __name__=="__main__":
     
-    xor_set=[[-1,-1], [-1, 1], [1,-1], [1,1]]
+    xor_set=[[0, 0], [0, 1], [1, 0], [1, 1]]
     
     # por probabilidad 
-    dataset_outputs={"XOR":[[-1], [1], [1], [-1]], "parity":[i%2 for i in range(9)] , "recognition":[i for i in range(9)]} 
+    dataset_outputs={"XOR":[[0], [1], [1], [0]], "parity":[[i%2] for i in range(10)] , "recognition":np.identity(10)} 
     
     with open(sys.argv[1],"r") as file:
          config=json.load(file)
@@ -53,8 +53,8 @@ if __name__=="__main__":
     print(f"Layers: {layers}")
 
     all_layers = np.concatenate(([len(input_dataset[0])], layers))
-
     optimizer=get_optimizer(optimizer_value, learning_rate, optimizer_alpha, optimizer_beta1, optimizer_beta2, optimizer_epsilon, all_layers)
-    
     perceptron:MultilayerPerceptron =MultilayerPerceptron(learning_rate,input_dataset,expected_outputs,activation_function,activation_derivate,layers, optimizer)
     perceptron.train_perceptron(epochs=epochs,epsilon=epsilon)
+    for input in input_dataset:
+        print(f"Input: {input}, predicted: {perceptron.predict_output(input)}")
