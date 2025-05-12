@@ -19,51 +19,6 @@ def read_number_files(file,block_size=35):
     blocks = [block for block in blocks if len(block) == block_size]    
     return blocks
 
-def run_experiment(param_name, values, fixed_params):
-    plt.figure()
-    print(f"\n### Varying {param_name} ###")
-
-    for i, val in enumerate(values):
-        kwargs = {**fixed_params, param_name: val}
-
-        optimizer = get_optimizer(
-            optimizer_name,
-            0.0001,
-            kwargs["alpha"],
-            kwargs["beta1"],
-            kwargs["beta2"],
-            kwargs["epsilon"],
-            layer_shapes
-        )
-
-        function, derivate = get_sigmoid_function_and_derivate(beta, "tanh")
-        current_epoch, average_accuracy = gather_data(
-            f"{param_name}_{val}",
-            learning_rate,
-            input_dataset,
-            expected_outputs,
-            function,
-            derivate,
-            layers,
-            optimizer
-        )
-
-        plt.plot(current_epoch, average_accuracy, label=f"{param_name}={val}")
-
-        # Progress bar
-        print("[" + "".join("#" if j <= i else "-" for j in range(len(values))) + "]")
-
-    plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
-    plt.title(f'Comparación variando {param_name}')
-    plt.grid(True)
-    plt.legend()
-    plt.ylim(0.0, 1.0)
-    plt.xlim(0, epochs)
-
-    filename = f"comparison_{param_name}.png"
-    plt.savefig(f"{folder}/{filename}")
-
 def gather_data(name, learning_rate, training_input, training_output, activation_function, activation_derivate, layers, optimizer):
     epoch_step = 10
     sets = int(epochs / epoch_step)
@@ -71,7 +26,7 @@ def gather_data(name, learning_rate, training_input, training_output, activation
     accuracy_sum = np.zeros(sets)
     current_epoch = [i * epoch_step for i in range(sets)]
 
-    num_runs = 1
+    num_runs = 100
 
     for run in range(num_runs):
         perc = MultilayerPerceptron(learning_rate, training_input, training_output,
@@ -93,6 +48,7 @@ def gather_data(name, learning_rate, training_input, training_output, activation
 
 
 if __name__ == "__main__":
+
     expected_outputs = [(1, 0) if i % 2 == 0 else (0, 1) for i in range(10)]
     input_dataset = read_number_files("training/TP3-ej3-digitos.txt")
     layers = [8, 6, 4, 1, 2]
@@ -111,15 +67,47 @@ if __name__ == "__main__":
     learning_rate = 0.001
     beta = 1
     optimizer_name = "adam"
+    optimizer_alpha = 0.001
+    optimizer_beta1 = 0.9
+    optimizer_beta2 = 0.999
+    optimizer_epsilon = 0.00000008
+
+    optimizer = get_optimizer(
+        optimizer_name,
+        0.0001,
+        optimizer_alpha,
+        optimizer_beta1,
+        optimizer_beta2,
+        optimizer_epsilon,
+        layer_shapes
+    )
+
+    learning_rates = ["tanh", "logistic", "relu", "softplus"]
+    plt.figure()
+
+    for activation_function in activations:
+        function, derivate = get_sigmoid_function_and_derivate(beta, activation_function)
+        current_epoch, average_accuracy = gather_data(
+            activation_function,
+            learning_rate,
+            input_dataset,
+            expected_outputs,
+            function,
+            derivate,
+            layers,
+            optimizer
+        )
+        plt.plot(current_epoch, average_accuracy, label=activation_function)
+
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.title('Comparación de funciones de activación')
+    plt.grid(True)
+    plt.legend()
+    plt.ylim(0.0, 1.0)
+    plt.xlim(0, epochs)
 
     folder = "output"
-
-    # Default values
-    fixed_params = {
-        "alpha": 0.001,
-        "beta1": 0.9,
-        "beta2": 0.999,
-        "epsilon": 0.00000008
-    }
-
-    run_experiment("alpha",  [0.001], fixed_params)
+    filename = "accuracy_comparison.png"
+    plt.savefig(folder + '/' + filename)
+    plt.show()
