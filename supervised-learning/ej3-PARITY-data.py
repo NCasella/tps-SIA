@@ -82,7 +82,7 @@ if __name__ == "__main__":
         layer_shapes
     )
 
-    learning_rates = ["tanh", "logistic", "relu", "softplus"]
+    activations = ["tanh", "logistic", "relu", "softplus"]
     plt.figure()
 
     for activation_function in activations:
