@@ -7,6 +7,7 @@ from src.sigmoid_functions import get_sigmoid_function_and_derivate
 import numpy as np 
 import pandas as pd 
 import random
+
 if __name__=="__main__":
     with open(sys.argv[1],"r") as file:
         config=json.load(file)
@@ -23,8 +24,15 @@ if __name__=="__main__":
     df=pd.read_csv(training_file_path)
     max_y=df["y"].max()
     min_y=df["y"].min()
-    for i,y in enumerate(df["y"]):
-        df["y"][i]=(y-min_y)/(max_y-min_y)*2-1
+    # Normalizing y values to be between -1 and 1
+    if perceptron_type == "non_linear" and function == "tanh":
+        for i,y in enumerate(df["y"]):
+            df["y"][i]=(y-min_y)/(max_y-min_y)*2-1
+
+    # Normalizing y values to be between 0 and 1
+    if perceptron_type == "non_linear" and function == "logistic":
+        for i,y in enumerate(df["y"]):
+            df["y"][i]=(y-min_y)/(max_y-min_y)
         
     indexes=list(range(len(df)))
     random.shuffle(indexes)
@@ -38,7 +46,6 @@ if __name__=="__main__":
     for x in training_indexes:
         training_rows_x.append(df_array[x][:-1])
         training_rows_y.append(df_array[x][-1])
-    
     
     testing_rows_x = []
     testing_rows_y = []
@@ -56,7 +63,7 @@ if __name__=="__main__":
     }
     print(df)
     print(len(df))
-#
+
     perceptron: LinearPerceptron|NonLinearPerceptron=perceptrons_map[perceptron_type](learning_rate,training_rows_x,training_rows_y)
     perceptron.train_perceptron(epochs=epochs,epsilon=epsilon)
     

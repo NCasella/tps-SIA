@@ -32,6 +32,9 @@ class SimplePerceptron():
     def train_perceptron(self,epochs:int,epsilon:float):
         error_history=[]
         convergence:bool=True
+        convergence_epoch = -1
+        convergence_amount = 0
+        first_convergence = False
         for epoch in range(epochs):
             total_error=0
             for µ in range(len(self.training_input)): #cada x^µ
@@ -44,13 +47,19 @@ class SimplePerceptron():
             error_history.append(total_error)
             convergence=total_error<epsilon #TODO: ver si esta bien?
             if convergence:
-                break
+                convergence_amount+=1
+            else:
+                convergence_amount=0
+            if convergence_amount>10 and not first_convergence:
+                first_convergence=True
+                convergence_epoch=epoch
             p=np.random.permutation(len(self.training_input))
             self.training_input=self.training_input[p]
             self.training_output=self.training_output[p]
             
-        if convergence:
-            print(f"se llego a convergencia en epoch {epoch}")
+        print(f"learning rate {self.learning_rate}: ")
+        if first_convergence:
+            print(f"se llego a convergencia en epoch {convergence_epoch}")
         else:
             print("no se llego a convergencia :(")
-        return error_history
+        return error_history, convergence_epoch
