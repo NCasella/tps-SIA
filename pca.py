@@ -117,3 +117,17 @@ if __name__ == "__main__":
         f.write(str(loadings.sort_values(by="PC1", ascending=False, key=abs).drop(columns="PC2")))
     with open(f"{output}/pc2_coefficients.txt", "w") as f:
         f.write(str(loadings.sort_values(by="PC2", ascending=False, key=abs).drop(columns="PC1")))
+
+    # PC1 vs variables
+    pc1_loadings = loadings["PC1"].copy()
+    pc1_loadings_sorted = pc1_loadings.reindex(pc1_loadings.abs().sort_values(ascending=False).index)
+
+    plt.figure(figsize=(10, 6))
+    pc1_loadings_sorted.plot(kind="bar", color="#ffa6b4")
+    plt.ylabel("PC1")
+    plt.title("PC1 Coefficients")
+    plt.xticks(rotation=45, ha="right")
+    plt.grid(axis="y")
+    plt.tight_layout()
+    plt.savefig(f"{output}/pc1_coefficients.png")
+    plt.close()
