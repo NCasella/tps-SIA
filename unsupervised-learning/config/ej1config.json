@@ -1,0 +1,9 @@
+{
+    "grid_size":5,
+    "data_source":"data/europe.csv",
+    "iterations":5000,
+    "learning_rate":0.1,
+    "similarity_metric":"euclidean_distance",
+    "radius":1,
+    "constant_radius":false
+}
