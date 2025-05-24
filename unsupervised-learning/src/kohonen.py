@@ -40,7 +40,7 @@ class Kohonen:
         
         for i in range(self.grid_size):
             for j in range(self.grid_size):
-                if (i-winner_neuron_index//self.grid_size)**2 +(j-winner_neuron_index%self.grid_size)**2 < self.radius**2:
+                if (i-winner_neuron_index//self.grid_size)**2 +(j-winner_neuron_index%self.grid_size)**2 <= self.radius**2:
                     nearby_neurons_indexes.append(i*self.grid_size+j)
         if not self.constant_radius:
             self.radius=max(1,self.radius*0.90)
