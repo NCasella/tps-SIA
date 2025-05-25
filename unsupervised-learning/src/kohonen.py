@@ -2,7 +2,7 @@ import numpy as np
 from typing import Callable,Optional
 
 class Kohonen:
-    def __init__(self, grid_size:int, input_data:list,similarity_metric:Callable,radius:Optional[float]=None,constant_radius:bool=False ,weights=None ):
+    def __init__(self, grid_size:int, input_data,similarity_metric:Callable,radius:Optional[float]=None,constant_radius:bool=False ,weights=None ):
         self.grid_size: int =grid_size
         self.radius:float=radius if radius is not None else grid_size
         self.similarity_metric: Callable =similarity_metric
