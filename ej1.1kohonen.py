@@ -44,7 +44,7 @@ if __name__=="__main__":
 
     countries=df["Country"]
     data=df.drop(columns=["Country"])
-    data_scaled=(data-data.mean())/data.std()
+    data_scaled=(data-data.mean())/data.std(ddof=0)
     kohonen: Kohonen=Kohonen(grid_size, data_scaled, sim_function,radius, constant_radius)
     kohonen.train_network(iterations=iterations)
 

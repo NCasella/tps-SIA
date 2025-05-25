@@ -11,7 +11,7 @@ if __name__=="__main__":
     df=pd.read_csv(config["data_source"],delimiter=',')
     
     data=df.drop(columns=["Country"])
-    standarized_data=(data-data.mean())/data.std()
+    standarized_data=(data-data.mean())/data.std(ddof=0)
 
     iterations=config["iterations"]
     learning_rate=config["learning_rate"]
