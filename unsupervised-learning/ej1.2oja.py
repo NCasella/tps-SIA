@@ -18,7 +18,14 @@ if __name__=="__main__":
     constant_learning_rate=config["constant_learning_rate"]
 
 
-
     oja: Oja=Oja(standarized_data,learning_rate,constant_learning_rate)
-
+    norm= oja.train_network(iterations)
+    result=oja.map_input(data)
+    for i in range(len(norm)):
+        print(f"{data.columns[i]}:{norm[i]}")
+    print("------------------------------")
+    for i in range(len(result)):
+        country=df["Country"][i]
+        print(f"{country}: {result[i]}")
+    
     
