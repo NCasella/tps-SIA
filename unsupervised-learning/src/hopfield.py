@@ -11,11 +11,12 @@ class Hopfield:
     
     def predic_output(self, input, epochs):
         current_state=np.array(input)
+        energy_history=[self._get_energy_(current_state)]
         state_history=[current_state]
         for epoch in range(epochs):
             current_state=np.sign(current_state@self.weights)
             state_history.append(current_state)
-        return state_history
+        return state_history,energy_history
     
     def _get_energy_(self, state):
         sum=0

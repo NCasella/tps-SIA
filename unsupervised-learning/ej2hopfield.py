@@ -3,6 +3,7 @@ import pandas as pd
 import sys
 import json 
 from src.hopfield import Hopfield
+import matplotlib.pyplot as plt
 
 def read_number_files(file,block_size=25):
     with open(file, 'r') as f:
@@ -24,3 +25,11 @@ if __name__=="__main__":
     constant_learning_rate=config["constant_learning_rate"]
 
     hopfield: Hopfield= Hopfield(letters)
+    letter_states=[]
+    energy_per_input=[]
+    
+    for letter in letters:
+        states,energy_history=hopfield.predic_output(letter,iterations)#TODO: agregarle ruido
+        print(f"{states[-1].reshape(5,5)} energy:{energy_history}")
+        
+    
