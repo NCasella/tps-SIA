@@ -2,7 +2,7 @@ import numpy as np
 from typing import Callable,Optional
 
 class Kohonen:
-    def __init__(self, grid_size:int, input_data:list,similarity_metric:Callable,radius:Optional[float]=None,constant_radius:bool=False ,weights=None ):
+    def __init__(self, grid_size:int, input_data,similarity_metric:Callable,radius:Optional[float]=None,constant_radius:bool=False ,weights=None ):
         self.grid_size: int =grid_size
         self.radius:float=radius if radius is not None else grid_size
         self.similarity_metric: Callable =similarity_metric
@@ -40,7 +40,7 @@ class Kohonen:
         
         for i in range(self.grid_size):
             for j in range(self.grid_size):
-                if (i-winner_neuron_index//self.grid_size)**2 +(j-winner_neuron_index%self.grid_size)**2 < self.radius**2:
+                if (i-winner_neuron_index//self.grid_size)**2 +(j-winner_neuron_index%self.grid_size)**2 <= self.radius**2:
                     nearby_neurons_indexes.append(i*self.grid_size+j)
         if not self.constant_radius:
             self.radius=max(1,self.radius*0.90)
