@@ -5,8 +5,39 @@ from src.similarity_metrics import get_metric_function
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np 
+def plot_u_matrix(som: Kohonen,sim_function):
+    grid_size = som.grid_size
+    weights = som.weights
+    u_matrix = np.zeros((grid_size, grid_size))
 
-def plot_data_mapping(som: Kohonen, labels=None):
+    for i in range(grid_size):
+        for j in range(grid_size):
+            current_index = i * grid_size + j
+            current_weight = weights[current_index]
+
+            # Get neighbors: up, down, left, right
+            neighbors = []
+            if i > 0:
+                neighbors.append(weights[(i-1)*grid_size + j])
+            if i < grid_size - 1:
+                neighbors.append(weights[(i+1)*grid_size + j])
+            if j > 0:
+                neighbors.append(weights[i*grid_size + (j-1)])
+            if j < grid_size - 1:
+                neighbors.append(weights[i*grid_size + (j+1)])
+
+            # Average distance to neighbors
+            dists = [np.linalg.norm(current_weight - n) for n in neighbors]
+            u_matrix[i, j] = np.mean(dists)
+
+    plt.figure(figsize=(6, 6))
+    plt.imshow(u_matrix, cmap='viridis', origin='upper')
+    plt.colorbar(label='Average Distance')
+    plt.xticks([])
+    plt.yticks([])
+    plt.savefig(f"avgDistance-{sim_function}-{grid_size}x{grid_size}")
+    
+def plot_data_mapping(som: Kohonen, labels,sim_function):
     grid_size = som.grid_size
     mapped = som.map_input()
     
@@ -18,14 +49,13 @@ def plot_data_mapping(som: Kohonen, labels=None):
         else:
             plt.plot(y, x, 'o', color='red')
 
-    plt.title("Input Data Mapped to SOM Grid")
     plt.xlim(-0.5, grid_size - 0.5)
     plt.ylim(-0.5, grid_size - 0.5)
     plt.gca().invert_yaxis()
     plt.grid(True)
     plt.xticks(range(grid_size))
     plt.yticks(range(grid_size))
-    plt.savefig("grid.png")
+    plt.savefig(f"grid-{sim_function}-{grid_size}x{grid_size}.png")
 
 
 if __name__=="__main__":
@@ -48,5 +78,5 @@ if __name__=="__main__":
     kohonen: Kohonen=Kohonen(grid_size, data_scaled, sim_function,radius, constant_radius)
     kohonen.train_network(iterations=iterations)
 
-    plot_data_mapping(kohonen,countries)
-
+    plot_data_mapping(kohonen,countries,config["similarity_metric"])
+    plot_u_matrix(kohonen,config["similarity_metric"])
