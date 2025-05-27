@@ -68,7 +68,24 @@ if __name__=="__main__":
     plt.legend()
     plt.tight_layout()
     plt.savefig("pca-vs-oja.png")
-    plt.show()
+
+
+    country_result_pairs = list(zip(df["Country"][:len(result)], result))
+
+    country_result_pairs.sort(key=lambda x: x[1], reverse=True)  # descending
+
+    sorted_countries, sorted_results = zip(*country_result_pairs)
+
+    x = np.arange(len(sorted_countries))
+
+    plt.figure(figsize=(14, 6))
+    plt.bar(x, sorted_results, color='cornflowerblue')
+    plt.xticks(x, sorted_countries, rotation=90)
+    plt.xlabel('Country')
+    plt.ylabel('Value')
+    plt.title('Country Results (Sorted by Value)')
+    plt.tight_layout()
+    plt.savefig("oja-country-scores.png")
 
     
     
