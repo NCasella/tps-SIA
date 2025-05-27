@@ -20,7 +20,7 @@ if __name__=="__main__":
 
     oja: Oja=Oja(standarized_data,learning_rate,constant_learning_rate)
     norm= oja.train_network(iterations)
-    result=oja.map_input(data)
+    result=oja.map_input(standarized_data)
     for i in range(len(norm)):
         print(f"{data.columns[i]}:{norm[i]}")
     print("------------------------------")
