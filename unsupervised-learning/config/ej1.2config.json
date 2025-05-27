@@ -1,0 +1,6 @@
+{
+    "data_source":"data/europe.csv",
+    "iterations":5000,
+    "learning_rate":0.001,
+    "constant_learning_rate":true
+}

@@ -8,12 +8,14 @@ class Oja:
         self.weights=weights if weights is not None else np.random.uniform(size=self.input_data.shape[1])
     
     def train_network(self, epochs):
-        for epoch in epochs:
+        for epoch in range(epochs):
             for µ in range(len(self.input_data)):
                 output=self.input_data[µ]@self.weights
                 for i in range(len(self.weights)):
                     self.weights[i]+=self.learning_rate*output*(self.input_data[µ][i] -output*self.weights[i])
-            self.learning_rate=self.learning_rate/epoch if not self.constant_learning_rate else self.learning_rate 
+            self.learning_rate=self.learning_rate/(epoch+1) if not self.constant_learning_rate else self.learning_rate 
+        self.weights=self.weights/np.linalg.norm(self.weights)
+        return self.weights
     
     def map_input(self, input):
         return input@self.weights
