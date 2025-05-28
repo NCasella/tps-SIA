@@ -62,12 +62,11 @@ def plot_u_matrix(som: Kohonen, sim_function: str):
     plt.colorbar(scatter, label='Average Distance',
                  location='left', fraction=0.046, pad=0.02)
     plt.title('Unified Distance Matrix')
-    plt.xticks([])
-    plt.yticks([])
+    plt.xticks(range(grid_size))
+    plt.yticks(range(grid_size))
     plt.gca().set_aspect('equal')
     plt.xlim(-0.5, grid_size - 0.5)
     plt.ylim(-0.5, grid_size - 0.5)
-    plt.gca().invert_yaxis()
     plt.tight_layout()
     plt.savefig(f'output/avg-distance-{sim_function}-{grid_size}x{grid_size}.png')
     plt.close()
@@ -108,12 +107,11 @@ def plot_register_counts(som: Kohonen, sim_function: str):
     cbar.ax.yaxis.set_major_locator(MaxNLocator(integer=True))
 
     plt.title('Register Counts')
-    plt.xticks([])
-    plt.yticks([])
+    plt.xticks(range(grid_size))
+    plt.yticks(range(grid_size))
     plt.gca().set_aspect('equal')
     plt.xlim(-0.5, grid_size - 0.5)
     plt.ylim(-0.5, grid_size - 0.5)
-    plt.gca().invert_yaxis()
     plt.tight_layout()
     plt.savefig(f'output/register-counts-{sim_function}-{grid_size}x{grid_size}.png')
     plt.close()
@@ -128,9 +126,9 @@ def plot_data_mapping(som: Kohonen, labels, sim_function):
     color_dict = {}
 
     for idx, neuron_index in enumerate(mapped):
-        x, y = neuron_index
+        i, j = neuron_index
         if labels is not None:
-            grouped[(x, y)].append(str(labels[idx]))
+            grouped[(j, i)].append(str(labels[idx]))
 
     for coord in grouped.keys():
         if coord not in color_dict:
@@ -192,12 +190,11 @@ def plot_weight_maps(som: Kohonen, feature_names: list[str], sim_function: str):
         plt.colorbar(scatter, label='Weight Value',
                      location='left', fraction=0.046, pad=0.02)
         plt.title(f'{feature_names[i]}')
-        plt.xticks([])
-        plt.yticks([])
+        plt.xticks(range(grid_size))
+        plt.yticks(range(grid_size))
         plt.gca().set_aspect('equal')
         plt.xlim(-0.5, grid_size - 0.5)
         plt.ylim(-0.5, grid_size - 0.5)
-        plt.gca().invert_yaxis()
         plt.tight_layout()
         plt.savefig(f'output/weightmap-{feature_names[i]}-{sim_function}-{grid_size}x{grid_size}.png')
         plt.close()
