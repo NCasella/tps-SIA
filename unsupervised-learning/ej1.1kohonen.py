@@ -64,51 +64,6 @@ def plot_u_matrix(som: Kohonen, sim_function):
     plt.savefig(f"output/avg-distance-{sim_function}-{grid_size}x{grid_size}.png")
     plt.close()
 
-
-def plot_variable_heatmap(som: Kohonen, df: DataFrame, variable_name: str, sim_function: str):
-    grid_size = som.grid_size
-    input_data = df.values
-
-    mapped = som.map_input(input_data)
-
-    neuron_values = defaultdict(list)
-    for idx, (x, y) in enumerate(mapped):
-        neuron_values[(x, y)].append(df.iloc[idx][variable_name])
-
-    avg_values = np.full((grid_size, grid_size), np.nan)
-    for (x, y), values in neuron_values.items():
-        avg_values[y, x] = np.mean(values)
-
-    fig, ax = plt.subplots(figsize=(8, 6))
-    patches = []
-    color_data = []
-
-    for i in range(grid_size):
-        for j in range(grid_size):
-            circle = Circle((j, i), 0.45)
-            patches.append(circle)
-            color_data.append(avg_values[i, j])
-
-    collection = PatchCollection(patches, cmap='viridis',
-                                 edgecolor='black', linewidth=0.5)
-    collection.set_array(np.array(color_data))
-    ax.add_collection(collection)
-
-    ax.set_xlim(-0.5, grid_size - 0.5)
-    ax.set_ylim(-0.5, grid_size - 0.5)
-    ax.set_aspect('equal')
-    ax.invert_yaxis()
-    ax.axis('off')
-    plt.title(f"{variable_name} Average", pad=20)
-
-    cbar = fig.colorbar(collection, ax=ax, shrink=0.8)
-    cbar.set_label(f'{variable_name} Average')
-
-    plt.tight_layout()
-    plt.savefig(f"output/{variable_name}_heatmap_{sim_function}.png",
-                dpi=120, bbox_inches='tight')
-    plt.close()
-
 def plot_register_counts(som: Kohonen, sim_function):
     grid_size = som.grid_size
     mapped = som.map_input()
@@ -226,5 +181,3 @@ if __name__ == "__main__":
     plot_data_mapping(kohonen, countries, sim)
     plot_u_matrix(kohonen, sim)
     plot_register_counts(kohonen, sim)
-    for header in data.columns:
-        plot_variable_heatmap(kohonen, data, header, sim)
