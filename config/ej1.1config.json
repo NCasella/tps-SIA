@@ -4,6 +4,7 @@
     "iterations":12500,
     "learning_rate":0.1,
     "similarity_metric":"euclidean_distance",
+    "random_weights":true,
     "radius":1,
     "constant_radius":false
 }
