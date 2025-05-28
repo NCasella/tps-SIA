@@ -3,9 +3,7 @@ import json
 import os
 import random
 import sys
-from matplotlib.collections import PatchCollection
-from matplotlib.colors import ListedColormap, Normalize
-from matplotlib.patches import Circle
+from matplotlib.colors import ListedColormap
 from matplotlib.ticker import MaxNLocator
 from src.kohonen import Kohonen
 from src.similarity_metrics import get_metric_function
@@ -19,7 +17,7 @@ seed = 23902980
 
 np.random.seed(seed)
 
-def plot_u_matrix(som: Kohonen,sim_function):
+def plot_u_matrix(som: Kohonen, sim_function: str):
     grid_size = som.grid_size
     weights = som.weights
     u_matrix = np.zeros((grid_size, grid_size))
@@ -29,7 +27,6 @@ def plot_u_matrix(som: Kohonen,sim_function):
             current_index = i * grid_size + j
             current_weight = weights[current_index]
 
-            # Get neighbors: up, down, left, right
             neighbors = []
             if i > 0:
                 neighbors.append(weights[(i - 1) * grid_size + j])
@@ -40,35 +37,43 @@ def plot_u_matrix(som: Kohonen,sim_function):
             if j < grid_size - 1:
                 neighbors.append(weights[i * grid_size + (j + 1)])
 
-            # Average distance to neighbors
             dists = [np.linalg.norm(current_weight - n) for n in neighbors]
             u_matrix[i, j] = np.mean(dists)
 
-    fig, ax = plt.subplots(figsize=(6, 6))
-    patches = []
-    colors = []
+    x, y = np.meshgrid(range(grid_size), range(grid_size))
+    x = x.flatten()
+    y = y.flatten()
+    values = u_matrix.flatten()
 
-    for i in range(grid_size):
-        for j in range(grid_size):
-            circle = Circle((j, i), 0.5)
-            patches.append(circle)
-            colors.append(u_matrix[i, j])
+    vmin = np.min(values)
+    vmax = np.max(values)
+    vcenter = (vmax - vmin) / 2
 
-    collection = PatchCollection(patches, cmap='viridis', edgecolor='black')
-    collection.set_array(np.array(colors))
-    ax.add_collection(collection)
-    ax.set_xlim(-0.5, grid_size - 0.5)
-    ax.set_ylim(-0.5, grid_size - 0.5)
-    ax.set_aspect('equal')
-    ax.axis('off')
+    plt.figure(figsize=(6, 6))
 
-    cbar = fig.colorbar(collection, ax=ax, location='left', fraction=0.046, pad=0.02)
-    cbar.set_label('Average Distance')
+    scatter = plt.scatter(
+        x, y,
+        c=values,
+        cmap='RdYlGn',
+        norm=TwoSlopeNorm(vmin=vmin, vcenter=vcenter, vmax=vmax),
+        s=800, marker='o', edgecolor='k', linewidth=0.5
+    )
+
+    plt.colorbar(scatter, label='Average Distance',
+                 location='left', fraction=0.046, pad=0.02)
+    plt.title('Unified Distance Matrix')
+    plt.xticks([])
+    plt.yticks([])
+    plt.gca().set_aspect('equal')
+    plt.xlim(-0.5, grid_size - 0.5)
+    plt.ylim(-0.5, grid_size - 0.5)
+    plt.gca().invert_yaxis()
     plt.tight_layout()
-    plt.savefig(f"output/avg-distance-{sim_function}-{grid_size}x{grid_size}.png")
+    plt.savefig(f'output/avg-distance-{sim_function}-{grid_size}x{grid_size}.png')
     plt.close()
 
-def plot_register_counts(som: Kohonen, sim_function):
+
+def plot_register_counts(som: Kohonen, sim_function: str):
     grid_size = som.grid_size
     mapped = som.map_input()
 
@@ -77,38 +82,40 @@ def plot_register_counts(som: Kohonen, sim_function):
         counts[x, y] += 1
 
     max_count = counts.max()
-    num_colors = max_count + 1
+    num_colors = max_count + 1 if max_count > 0 else 1
 
     base_cmap = plt.get_cmap('coolwarm')
+    color_list = [base_cmap(i / (num_colors - 1)) for i in range(num_colors)]
+    cmap = ListedColormap(color_list)
 
-    colors = [base_cmap(i / (num_colors - 1)) for i in range(num_colors)]
-    cmap = ListedColormap(colors)
+    x, y = np.meshgrid(range(grid_size), range(grid_size))
+    x = x.flatten()
+    y = y.flatten()
+    values = counts.flatten()
 
-    fig, ax = plt.subplots(figsize=(6, 6))
-    patches = []
-    colors = []
+    plt.figure(figsize=(6, 6))
 
-    for i in range(grid_size):
-        for j in range(grid_size):
-            circle = Circle((j, i), 0.5)
-            patches.append(circle)
-            colors.append(counts[i, j])
+    scatter = plt.scatter(
+        x, y,
+        c=values,
+        cmap=cmap,
+        s=800, marker='o', edgecolor='k', linewidth=0.5,
+        vmin=-0.5, vmax=max_count + 0.5
+    )
 
-    collection = PatchCollection(patches, cmap=cmap, edgecolor='black')
-    collection.set_array(np.array(colors))
-    collection.set_clim(-0.5, max_count + 0.5)
-    ax.add_collection(collection)
-
-    ax.set_xlim(-0.5, grid_size - 0.5)
-    ax.set_ylim(-0.5, grid_size - 0.5)
-    ax.set_aspect('equal')
-    ax.axis('off')
-
-    cbar = fig.colorbar(collection, ax=ax, location='left', fraction=0.046, pad=0.02)
+    cbar = plt.colorbar(scatter, location='left', fraction=0.046, pad=0.02)
     cbar.set_label('Count')
-    cbar.locator = MaxNLocator(integer=True)
+    cbar.ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+    plt.title('Register Counts')
+    plt.xticks([])
+    plt.yticks([])
+    plt.gca().set_aspect('equal')
+    plt.xlim(-0.5, grid_size - 0.5)
+    plt.ylim(-0.5, grid_size - 0.5)
+    plt.gca().invert_yaxis()
     plt.tight_layout()
-    plt.savefig(f"output/register-counts-{sim_function}-{grid_size}x{grid_size}.png")
+    plt.savefig(f'output/register-counts-{sim_function}-{grid_size}x{grid_size}.png')
     plt.close()
 
 
@@ -153,11 +160,12 @@ def plot_data_mapping(som: Kohonen, labels, sim_function):
     plt.grid(True, alpha=0.3)
     plt.xticks(range(grid_size))
     plt.yticks(range(grid_size))
-    plt.savefig(f"output/grid-{sim_function}-{grid_size}x{grid_size}.png", dpi=130, bbox_inches='tight')
+    plt.savefig(f'output/grid-{sim_function}-{grid_size}x{grid_size}.png', dpi=130, bbox_inches='tight')
     plt.close()
 
+
 def plot_weight_maps(som: Kohonen, feature_names: list[str], sim_function: str):
-    weights_grid = som.get_weights_grid()  # Shape: (grid_size, grid_size, n_features)
+    weights_grid = som.get_weights_grid()
     n_features = weights_grid.shape[2]
     grid_size = som.grid_size
 
@@ -177,13 +185,13 @@ def plot_weight_maps(som: Kohonen, feature_names: list[str], sim_function: str):
             x, y,
             c=values,
             cmap='RdYlGn',
-            norm=TwoSlopeNorm(vmin=vmin, vcenter=0, vmax=vmax),
+            norm=TwoSlopeNorm(vmin=vmin, vcenter=vcenter, vmax=vmax),
             s=800, marker='o', edgecolor='k', linewidth=0.5
         )
 
         plt.colorbar(scatter, label='Weight Value',
-            location='left', fraction=0.046, pad=0.02)
-        plt.title(f"{feature_names[i]}")
+                     location='left', fraction=0.046, pad=0.02)
+        plt.title(f'{feature_names[i]}')
         plt.xticks([])
         plt.yticks([])
         plt.gca().set_aspect('equal')
@@ -191,33 +199,35 @@ def plot_weight_maps(som: Kohonen, feature_names: list[str], sim_function: str):
         plt.ylim(-0.5, grid_size - 0.5)
         plt.gca().invert_yaxis()
         plt.tight_layout()
-        plt.savefig(f"weightmap-{feature_names[i]}-{sim_function}-{grid_size}x{grid_size}.png")
+        plt.savefig(f'output/weightmap-{feature_names[i]}-{sim_function}-{grid_size}x{grid_size}.png')
         plt.close()
 
-if __name__ == "__main__":
-    with open(sys.argv[1], "r") as f:
+
+if __name__ == '__main__':
+    with open(sys.argv[1], 'r') as f:
         config = json.load(f)
 
-    os.makedirs("output", exist_ok=True)
+    os.makedirs('output', exist_ok=True)
 
-    grid_size = config["grid_size"]
-    df = pd.read_csv(config["data_source"], delimiter=',')
-    radius = config["radius"]
-    constant_radius = config["constant_radius"]
-    learning_rate = config["learning_rate"]
+    grid_size = config['grid_size']
+    df = pd.read_csv(config['data_source'], delimiter=',')
+    radius = config['radius']
+    constant_radius = config['constant_radius']
+    learning_rate = config['learning_rate']
 
-    sim_function = get_metric_function(config["similarity_metric"])
-    iterations = config["iterations"]
+    sim_function = get_metric_function(config['similarity_metric'])
+    iterations = config['iterations']
 
-    countries=df["Country"]
-    data=df.drop(columns=["Country"])
-    data_scaled=(data-data.mean())/data.std(ddof=0)
-    data_scaled_np=data_scaled.to_numpy()
-    initial_weights=None if config["random_weights"] else data_scaled_np[np.random.choice(len(data_scaled),size=grid_size**2)]
-    kohonen: Kohonen=Kohonen(grid_size, data_scaled, sim_function,radius, constant_radius,initial_weights)
+    countries = df['Country']
+    data = df.drop(columns=['Country'])
+    data_scaled = (data - data.mean()) / data.std(ddof=0)
+    data_scaled_np = data_scaled.to_numpy()
+    initial_weights = None if config['random_weights'] else data_scaled_np[
+        np.random.choice(len(data_scaled), size=grid_size ** 2)]
+    kohonen: Kohonen = Kohonen(grid_size, data_scaled, sim_function, radius, constant_radius, initial_weights)
     kohonen.train_network(iterations=iterations)
 
-    sim = config["similarity_metric"]
+    sim = config['similarity_metric']
 
     plot_data_mapping(kohonen, countries, sim)
     plot_u_matrix(kohonen, sim)
