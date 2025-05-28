@@ -24,7 +24,7 @@ class Kohonen:
         return weight_history
     
     def map_input(self,input=None):
-        data =self.input_data if input is None else np.array(input)
+        data = self.input_data if input is None else np.array(input)
         coord_results=[]
         for x in data:
             best_neuron_index=self.similarity_metric(x, self.weights)
@@ -46,3 +46,6 @@ class Kohonen:
             self.radius=max(1,self.radius*0.90)
         
         return nearby_neurons_indexes
+
+    def get_weights_grid(self):
+        return self.weights.reshape((self.grid_size, self.grid_size, -1))
