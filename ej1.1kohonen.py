@@ -213,10 +213,12 @@ if __name__ == "__main__":
     sim_function = get_metric_function(config["similarity_metric"])
     iterations = config["iterations"]
 
-    countries = df["Country"]
-    data = df.drop(columns=["Country"])
-    data_scaled = (data - data.mean()) / data.std(ddof=0)
-    kohonen: Kohonen = Kohonen(grid_size, data_scaled, sim_function, radius, constant_radius)
+    countries=df["Country"]
+    data=df.drop(columns=["Country"])
+    data_scaled=(data-data.mean())/data.std(ddof=0)
+    data_scaled_np=data_scaled.to_numpy()
+    initial_weights=None if config["random_weights"] else data_scaled_np[np.random.choice(len(data_scaled),size=grid_size**2)]
+    kohonen: Kohonen=Kohonen(grid_size, data_scaled, sim_function,radius, constant_radius,initial_weights)
     kohonen.train_network(iterations=iterations)
 
     sim = config["similarity_metric"]

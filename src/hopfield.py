@@ -16,11 +16,13 @@ class Hopfield:
         for epoch in range(epochs):
             current_state=np.sign(current_state@self.weights)
             state_history.append(current_state)
+            if (len(state_history) > 3 and np.array_equal(state_history[-1], state_history[-2]) and np.array_equal(state_history[-2], state_history[-3])):
+                return state_history,energy_history
         return state_history,energy_history
     
     def _get_energy_(self, state):
         sum=0
         for i in range(self.weights.shape[0]):
-            for j in range(self.weights.shape[1]):
+            for j in range(i+1, self.weights.shape[1]):
                 sum+=self.weights[i][j]*state[i]*state[j]
-        return -0.5*sum
+        return sum
