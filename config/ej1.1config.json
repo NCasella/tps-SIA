@@ -1,5 +1,5 @@
 {
-    "grid_size":25,
+    "grid_size":10,
     "data_source":"data/europe.csv",
     "iterations":12500,
     "learning_rate":0.1,
