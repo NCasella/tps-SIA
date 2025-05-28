@@ -4,7 +4,14 @@ from src.kohonen import Kohonen
 from src.similarity_metrics import get_metric_function
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np 
+from matplotlib.colors import TwoSlopeNorm
+import numpy as np
+from collections import defaultdict
+
+seed = 23902980
+
+np.random.seed(seed)
+
 def plot_u_matrix(som: Kohonen,sim_function):
     grid_size = som.grid_size
     weights = som.weights
@@ -36,27 +43,66 @@ def plot_u_matrix(som: Kohonen,sim_function):
     plt.xticks([])
     plt.yticks([])
     plt.savefig(f"avgDistance-{sim_function}-{grid_size}x{grid_size}")
-    
-def plot_data_mapping(som: Kohonen, labels,sim_function):
+
+def plot_data_mapping(som: Kohonen, labels, sim_function):
     grid_size = som.grid_size
     mapped = som.map_input()
-    
-    plt.figure(figsize=(6, 6))
+
+    # Group labels per neuron
+    neuron_labels = defaultdict(list)
     for idx, neuron_index in enumerate(mapped):
-        x, y = neuron_index
-        if labels is not None:
-            plt.text(y, x, str(labels[idx]), ha='center', va='center', fontsize=8)
-        else:
-            plt.plot(y, x, 'o', color='red')
+        neuron_labels[tuple(neuron_index)].append(str(labels[idx]))
+
+    plt.figure(figsize=(8, 8))
+    for (x, y), lbls in neuron_labels.items():
+        text = ', '.join(lbls)  # or: f"{len(lbls)} items" for dense datasets
+        plt.text(x, y, text, ha='center', va='center', fontsize=6, wrap=True)
 
     plt.xlim(-0.5, grid_size - 0.5)
     plt.ylim(-0.5, grid_size - 0.5)
-    plt.gca().invert_yaxis()
     plt.grid(True)
     plt.xticks(range(grid_size))
     plt.yticks(range(grid_size))
+    plt.tight_layout()
     plt.savefig(f"grid-{sim_function}-{grid_size}x{grid_size}.png")
 
+def plot_weight_maps(som: Kohonen, feature_names: list[str], sim_function: str):
+    weights_grid = som.get_weights_grid()  # Shape: (grid_size, grid_size, n_features)
+    n_features = weights_grid.shape[2]
+    grid_size = som.grid_size
+
+    x, y = np.meshgrid(range(grid_size), range(grid_size))
+    x = x.flatten()
+    y = y.flatten()
+
+    for i in range(n_features):
+        values = weights_grid[:, :, i].flatten()
+        vmin = np.min(values)
+        vmax = np.max(values)
+        vcenter = 0
+
+        plt.figure(figsize=(6, 6))
+
+        scatter = plt.scatter(
+            x, y,
+            c=values,
+            cmap='RdYlGn',
+            norm=TwoSlopeNorm(vmin=vmin, vcenter=0, vmax=vmax),
+            s=800, marker='o', edgecolor='k', linewidth=0.5
+        )
+
+        plt.colorbar(scatter, label='Weight Value',
+            location='left', fraction=0.046, pad=0.02)
+        plt.title(f"{feature_names[i]}")
+        plt.xticks([])
+        plt.yticks([])
+        plt.gca().set_aspect('equal')
+        plt.xlim(-0.5, grid_size - 0.5)
+        plt.ylim(-0.5, grid_size - 0.5)
+        plt.gca().invert_yaxis()
+        plt.tight_layout()
+        plt.savefig(f"weightmap-{feature_names[i]}-{sim_function}-{grid_size}x{grid_size}.png")
+        plt.close()
 
 if __name__=="__main__":
     
@@ -80,3 +126,4 @@ if __name__=="__main__":
 
     plot_data_mapping(kohonen,countries,config["similarity_metric"])
     plot_u_matrix(kohonen,config["similarity_metric"])
+    plot_weight_maps(kohonen, list(data.columns), config["similarity_metric"])
