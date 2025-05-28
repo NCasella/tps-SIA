@@ -58,12 +58,24 @@ if __name__=="__main__":
 
     plt.figure(figsize=(12, 6))
     plt.bar(x - width / 2, norm_sorted, width, label='Oja', color='skyblue')
+
+    plt.xlabel('Features')
+    plt.ylabel('Values')
+    plt.grid(axis="y")
+    plt.title('Oja primary component coefficients')
+    plt.xticks(x, features_sorted, rotation=45)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("oja-no-pca.png")
+
+    plt.figure(figsize=(12, 6))
+    plt.bar(x - width / 2, norm_sorted, width, label='Oja', color='skyblue')
     plt.bar(x + width / 2, pc1_sorted, width, label='PCA', color='orange')
 
     plt.xlabel('Features')
     plt.ylabel('Values')
     plt.grid(axis="y")
-    plt.title('Comparison of Calculated Norm vs Manual PC1 Values')
+    plt.title('Comparison of Oja vs PCA')
     plt.xticks(x, features_sorted, rotation=45)
     plt.legend()
     plt.tight_layout()
