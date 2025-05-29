@@ -47,7 +47,7 @@ def plot_u_matrix(som: Kohonen, sim_function: str):
 
     vmin = np.min(values)
     vmax = np.max(values)
-    vcenter = (vmax - vmin) / 2
+    vcenter = (vmax + vmin) / 2
 
     plt.figure(figsize=(6, 6))
 
@@ -68,7 +68,7 @@ def plot_u_matrix(som: Kohonen, sim_function: str):
     plt.xlim(-0.5, grid_size - 0.5)
     plt.ylim(-0.5, grid_size - 0.5)
     plt.tight_layout()
-    plt.savefig(f'output/avg-distance-{sim_function}-{grid_size}x{grid_size}.png')
+    plt.savefig(f'output/{grid_size}/avg-distance-{sim_function}.png')
     plt.close()
 
 
@@ -113,7 +113,7 @@ def plot_register_counts(som: Kohonen, sim_function: str):
     plt.xlim(-0.5, grid_size - 0.5)
     plt.ylim(-0.5, grid_size - 0.5)
     plt.tight_layout()
-    plt.savefig(f'output/register-counts-{sim_function}-{grid_size}x{grid_size}.png')
+    plt.savefig(f'output/{grid_size}/counts-{sim_function}.png')
     plt.close()
 
 
@@ -158,7 +158,7 @@ def plot_data_mapping(som: Kohonen, labels, sim_function):
     plt.grid(True, alpha=0.3)
     plt.xticks(range(grid_size))
     plt.yticks(range(grid_size))
-    plt.savefig(f'output/grid-{sim_function}-{grid_size}x{grid_size}.png', dpi=130, bbox_inches='tight')
+    plt.savefig(f'output/{grid_size}/grid-{sim_function}.png', dpi=130, bbox_inches='tight')
     plt.close()
 
 
@@ -175,7 +175,7 @@ def plot_weight_maps(som: Kohonen, feature_names: list[str], sim_function: str):
         values = weights_grid[:, :, i].flatten()
         vmin = np.min(values)
         vmax = np.max(values)
-        vcenter = 0
+        vcenter = (vmax + vmin) / 2
 
         plt.figure(figsize=(6, 6))
 
@@ -196,7 +196,7 @@ def plot_weight_maps(som: Kohonen, feature_names: list[str], sim_function: str):
         plt.xlim(-0.5, grid_size - 0.5)
         plt.ylim(-0.5, grid_size - 0.5)
         plt.tight_layout()
-        plt.savefig(f'output/weightmap-{feature_names[i]}-{sim_function}-{grid_size}x{grid_size}.png')
+        plt.savefig(f'output/{grid_size}/wm-{sim_function}-{feature_names[i]}.png')
         plt.close()
 
 
@@ -204,9 +204,9 @@ if __name__ == '__main__':
     with open(sys.argv[1], 'r') as f:
         config = json.load(f)
 
-    os.makedirs('output', exist_ok=True)
 
     grid_size = config['grid_size']
+    os.makedirs(f'output/{grid_size}', exist_ok=True)
     df = pd.read_csv(config['data_source'], delimiter=',')
     radius = config['radius']
     constant_radius = config['constant_radius']
