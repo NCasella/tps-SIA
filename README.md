@@ -1,5 +1,9 @@
 # tp4-SIA_Unsupervised-Learning
 
+Todas las dependencias necesarias estan dentro del archivo ```requirements.txt```, que se pueden instalar con:
+
+``pip install -r requirements.txt``
+
 ## Red de Kohonen
 Para la red de Kohonen, ejecutar:
 
