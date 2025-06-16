@@ -11,7 +11,6 @@ class MultilayerPerceptron():
       self.activation_function_derivate=activation_function_derivate
       self.layers_structure=layers_structure
       self.optimizer = optimizer
-
       self.weights = []
       input_size = self.training_input.shape[1]
       self.weights.append(np.random.randn(input_size, layers_structure[0]) * np.sqrt(1.0 / input_size))
@@ -86,7 +85,8 @@ class MultilayerPerceptron():
          self.weights[l] += adjustment
          self.latest_adjustments[l] = adjustment
 
-   def _get_input_with_bias(self, training_input):
+   @classmethod
+   def get_input_with_bias(self, training_input):
       if isinstance(training_input, list):
          training_input = np.array(training_input)
       if training_input.ndim == 1:
