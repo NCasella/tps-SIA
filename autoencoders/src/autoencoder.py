@@ -4,8 +4,8 @@ import numpy as np
 class Autoencoder:
     def __init__(self, input, learning_rate:float,activation_function, activation_derivate, layer_structure, optimizer=None):
         self.input=np.array(input)
-        self.encoder=MultilayerPerceptron(learning_rate,input,None,activation_function, activation_derivate, layer_structure,optimizer)
-        self.decoder=MultilayerPerceptron(learning_rate,None,input,activation_function, activation_derivate, layer_structure[::-1],optimizer)
+        self.encoder=MultilayerPerceptron(learning_rate,input,None,activation_function, activation_derivate, layer_structure ,optimizer)
+        self.decoder=MultilayerPerceptron(learning_rate,None,input,activation_function, activation_derivate, layer_structure, optimizer)
 
     def train(self,epochs,expected):
         for epoch in range(epochs):
