@@ -12,7 +12,7 @@ class MultilayerPerceptron():
       self.layers_structure=layers_structure
       self.optimizer = optimizer
       self.weights = []
-      input_size = self.training_input.shape[1]
+      input_size = layers_structure[0]
       self.weights.append(np.random.randn(input_size, layers_structure[0]) * np.sqrt(1.0 / input_size))
       for i in range(len(layers_structure) - 1):
          prev_size = layers_structure[i] + 1
