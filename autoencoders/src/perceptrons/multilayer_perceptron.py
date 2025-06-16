@@ -5,7 +5,9 @@ from src.perceptrons.optimizers.optimizer import Optimizer
 class MultilayerPerceptron():
    def __init__(self,learning_rate:float,training_input:list,training_output: list,activation_function:callable,activation_function_derivate:callable,layers_structure:list[int],optimizer:Optimizer = None):
       self.activation_function=activation_function
+      self.training_input=training_input
       self.learning_rate=learning_rate
+      self.training_output=training_output
       self.activation_function_derivate=activation_function_derivate
       self.layers_structure=layers_structure
       self.optimizer = optimizer
