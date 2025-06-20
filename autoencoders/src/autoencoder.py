@@ -1,29 +1,35 @@
+import numpy as np 
 from src.perceptrons.multilayer_perceptron import MultilayerPerceptron
-import numpy as np
 
-class Autoencoder:
-    def __init__(self, input, learning_rate:float,activation_function, activation_derivate, layer_structure, optimizer=None):
-        self.input=np.array(input)
-        self.encoder=MultilayerPerceptron(learning_rate,input,None,activation_function, activation_derivate, layer_structure ,optimizer)
-        self.decoder=MultilayerPerceptron(learning_rate,None,input,activation_function, activation_derivate, layer_structure, optimizer)
 
-    def train(self,epochs,expected):
+#DEPRECADO (maybe)
+class Autoencoder():
+    def __init__(self,learning_rate:float,activation_function:callable,activation_function_derivate:callable,enc_layers_structure:list[int],dec_layers_structure,enc_optimizer = None,dec_optimizer=None):
+        self.encoder:MultilayerPerceptron=MultilayerPerceptron(learning_rate,activation_function,activation_function_derivate,enc_layers_structure,enc_optimizer)
+        self.decoder:MultilayerPerceptron=MultilayerPerceptron(learning_rate,activation_function,activation_function_derivate,dec_layers_structure,dec_optimizer)
+
+
+    def train(self,training_input,training_output,epsilon,epochs):
+        training_input=MultilayerPerceptron.get_input_with_bias(training_input)
+        training_output=np.array(training_output)
         for epoch in range(epochs):
             errors=0
-            for i in range(len(self.input)):
-                x=MultilayerPerceptron.get_input_with_bias(self.input[i])
-                encoder_outputs,encoder_partials=self.encoder.feedfoward(x)
+            for i in len(training_input):
+                enc_out, enc_partials=self.encoder.feedfoward(training_input[i])
 
-                z=MultilayerPerceptron.get_input_with_bias(encoder_outputs[-1])
-                decoder_outputs, decoder_partials=self.decoder.feedfoward(z)
+                z_input=MultilayerPerceptron.get_input_with_bias(enc_out[-1])
+                dec_out,dec_partials=self.decoder.feedfoward(z_input)
 
-                self.decoder.backpropagate(decoder_partials,expected, decoder_outputs)
-                self.encoder.backpropagate(encoder_partials,z, encoder_outputs)
-                errors+=np.abs(self.input[i] - expected[i]).sum()
-            
+                self.decoder.backpropagate(dec_partials,training_output[i],dec_out)
+                self.encoder.backpropagate(enc_partials,enc_out[-1],enc_out)
+                errors+=self.calculate_error(training_output[-1],dec_out[-1])
+            if errors<=epsilon:
+                print(f"Convergencia en {epoch}")
+                return 
             print(f"epoch {epoch} error:{errors}")
-            if errors<=1:
-                print("Convergencia error")
-                return
-
     
+    def calculate_error(self, expected, output)->float:
+        return np.sum((output>0.5).astype(int)!=expected.astype(int))
+
+
+
