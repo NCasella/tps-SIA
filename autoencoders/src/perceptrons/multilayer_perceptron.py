@@ -5,14 +5,14 @@ from src.perceptrons.optimizers.optimizer import Optimizer
 class MultilayerPerceptron():
    def __init__(self,learning_rate:float,training_input:list,training_output: list,activation_function:callable,activation_function_derivate:callable,layers_structure:list[int],optimizer:Optimizer = None):
       self.activation_function=activation_function
-      self.training_input=training_input
+      self.training_input=MultilayerPerceptron.get_input_with_bias(training_input)
       self.learning_rate=learning_rate
       self.training_output=training_output
       self.activation_function_derivate=activation_function_derivate
       self.layers_structure=layers_structure
       self.optimizer = optimizer
       self.weights = []
-      input_size = layers_structure[0]
+      input_size = self.training_input.shape[1]
       self.weights.append(np.random.randn(input_size, layers_structure[0]) * np.sqrt(1.0 / input_size))
       for i in range(len(layers_structure) - 1):
          prev_size = layers_structure[i] + 1
@@ -94,11 +94,11 @@ class MultilayerPerceptron():
       return np.hstack([training_input, np.ones((training_input.shape[0], 1))])
 
    def predict_output(self, input):
-      inputs = self._get_input_with_bias(input)
+      inputs = MultilayerPerceptron.get_input_with_bias(input)
       return self.feedfoward(inputs)[0][-1]
 
    def calculate_error(self, expected, output)->float:
-      return 0.5*np.square(output-expected).sum()
+      return np.sum((output>0.5).astype(int)!=expected.astype(int))
    
    def compute_activation(self,hμ):
       return self.activation_function(hμ)
