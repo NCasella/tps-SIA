@@ -99,16 +99,17 @@ class MultilayerPerceptron():
       feedfoward=self.feedfoward(inputs)[0]
       return feedfoward[-1],feedfoward[len(self.layers_structure)//2][0][:-1]
 
-   def decode(self,input): 
+   def decode(self,input):
+      input=MultilayerPerceptron.get_input_with_bias(input) 
       outputs = [input]
       partial_results = []
-
-      for i, weight_matrix in enumerate(self.weights[len(self.weights)//2-1:]):
+      
+      for i, weight_matrix in enumerate(self.weights[len(self.weights)//2:]):
          hi = np.dot(outputs[-1], weight_matrix)
          partial_results.append(hi)
 
          activated = self.activation_function(hi)
-         if i != len(self.weights) - 1:
+         if i != len(self.weights[len(self.weights)//2:]) - 1:
             activated = np.hstack([
                activated,
                np.ones((activated.shape[0], 1))
