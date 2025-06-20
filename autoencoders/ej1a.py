@@ -19,7 +19,7 @@ def plot_latent_space(X, labels=None, title="Latent Space", figsize=(7, 5)):
 
     if labels is not None:
         for i, (x, y) in enumerate(latent_points):
-            plt.text(x, y+0.1, str(labels[i]), fontsize=9, ha='center', va='center', color='black')
+            plt.text(x, y+0.08, str(labels[i]), fontsize=9, ha='center', va='center', color='black')
 
     plt.title(title)
     plt.xlabel("z₁")
