@@ -15,13 +15,11 @@ def save_letter_heatmap(output_vector, filename, shape=(7, 5), cmap='gray', vmin
     - cmap: matplotlib colormap (default: 'gray')
     - vmin, vmax: color scale range (useful for sigmoid/tanh outputs)
     """
-    if output_vector.ndim > 1:
-        output_vector = output_vector.flatten()
 
     data = output_vector.reshape(shape)
 
     plt.figure(figsize=(2.5, 3.5))
-    plt.imshow(data, cmap=cmap, vmin=vmin, vmax=vmax)
+    plt.imshow((data>0.5).astype(int), cmap=cmap, vmin=vmin, vmax=vmax)
     plt.axis('off')
     plt.tight_layout()
     plt.savefig(filename, bbox_inches='tight', pad_inches=0)
