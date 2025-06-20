@@ -9,7 +9,7 @@ from src.perceptrons.sigmoid_functions import get_sigmoid_function_and_derivate
 from src.perceptrons.optimizers.optimizers import *
 from fonts.fonts import *
 from src.utils import *
-
+from src.noise_functions import get_noise_functions
 
 
 if __name__=="__main__":
@@ -19,6 +19,8 @@ if __name__=="__main__":
     with open(sys.argv[1],"r") as f:
         config=json.load(f)
     layers_config=config["layers"]
+    epsilon=config["epsilon"]
+    std_deviation=config["standard_deviation"]
     learning_rate=config["learning_rate"]
     function=config["activation_function"]
     f,df=get_sigmoid_function_and_derivate(1,function)
@@ -29,7 +31,9 @@ if __name__=="__main__":
     optimizer_beta2=config["optimizer_beta_2"]
     optimizer_epsilon=config["optimizer_epsilon"]
     font_number=int(config["font"])-1
-    
+    noise_function=config["noise_function"]
+
+
     input=[to_bin_array(encoded_character).flatten() for encoded_character in fonts[font_number]]
     input_size = len(input[0])
     layer_shapes = []
@@ -39,6 +43,13 @@ if __name__=="__main__":
         current_size = layer_size + 1
     opt=get_optimizer(optimizer_value ,learning_rate,optimizer_alpha,optimizer_beta1,optimizer_beta2,optimizer_epsilon,layer_shapes)
     input=np.array(input)
+    noise_func=get_noise_functions(noise_function, std_deviation)
 
+    noisy_input=noise_func(input)
+    autoencoder:MultilayerPerceptron=MultilayerPerceptron(learning_rate,noisy_input,input,f, df, layers_config,opt)
+    autoencoder.train_perceptron(epochs,epsilon=epsilon)
 
-    autoencoder:MultilayerPerceptron=MultilayerPerceptron(learning_rate,input,input,f,df,layers_config,opt)
+    for i,char in enumerate(noise_func(input)):
+        output,_ =autoencoder.predict_output(char) 
+        save_letter_heatmap(char,f"out/noisy{font2_labels[i]}.png",binarize=False)
+        save_letter_heatmap(output,f"out/{font2_labels[i]}.png")
