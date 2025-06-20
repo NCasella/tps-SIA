@@ -95,7 +95,8 @@ class MultilayerPerceptron():
 
    def predict_output(self, input):
       inputs = MultilayerPerceptron.get_input_with_bias(input)
-      return self.feedfoward(inputs)[0][-1]
+      feedfoward=self.feedfoward(inputs)[0]
+      return feedfoward[-1],feedfoward[len(self.layers_structure)//2][0][:-1]
 
    def calculate_error(self, expected, output)->float:
       return np.sum((output>0.5).astype(int)!=expected.astype(int))
