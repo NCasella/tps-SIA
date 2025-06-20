@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
-from src.autoencoder import Autoencoder
 from src.perceptrons.multilayer_perceptron import MultilayerPerceptron
 from src.perceptrons.sigmoid_functions import get_sigmoid_function_and_derivate
 from src.perceptrons.optimizers.optimizers import *
@@ -35,10 +34,10 @@ if __name__=="__main__":
 
 
     input=[to_bin_array(encoded_character).flatten() for encoded_character in fonts[font_number]]
-    input_size = len(input[0])
+    input_size = layers_config[0]
     layer_shapes = []
     current_size = input_size + 1
-    for layer_size in layers_config:
+    for layer_size in layers_config[1:]:
         layer_shapes.append((current_size, layer_size))
         current_size = layer_size + 1
     opt=get_optimizer(optimizer_value ,learning_rate,optimizer_alpha,optimizer_beta1,optimizer_beta2,optimizer_epsilon,layer_shapes)
@@ -46,8 +45,8 @@ if __name__=="__main__":
     noise_func=get_noise_functions(noise_function, std_deviation)
 
     noisy_input=noise_func(input)
-    autoencoder:MultilayerPerceptron=MultilayerPerceptron(learning_rate,noisy_input,input,f, df, layers_config,opt)
-    autoencoder.train_perceptron(epochs,epsilon=epsilon)
+    autoencoder:MultilayerPerceptron=MultilayerPerceptron(learning_rate,f, df, layers_config,opt)
+    autoencoder.train_perceptron(noisy_input,input,epochs,epsilon=epsilon)
 
     for i,char in enumerate(noise_func(input)):
         output,_ =autoencoder.predict_output(char) 

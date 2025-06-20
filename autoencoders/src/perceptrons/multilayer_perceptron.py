@@ -3,18 +3,16 @@ import numpy as np
 from src.perceptrons.optimizers.optimizer import Optimizer
 
 class MultilayerPerceptron():
-   def __init__(self,learning_rate:float,training_input:list,training_output: list,activation_function:callable,activation_function_derivate:callable,layers_structure:list[int],optimizer:Optimizer = None):
+   def __init__(self,learning_rate:float,activation_function:callable,activation_function_derivate:callable,layers_structure:list[int],optimizer:Optimizer = None):
       self.activation_function=activation_function
-      self.training_input=MultilayerPerceptron.get_input_with_bias(training_input)
       self.learning_rate=learning_rate
-      self.training_output=training_output
       self.activation_function_derivate=activation_function_derivate
       self.layers_structure=layers_structure
       self.optimizer = optimizer
       self.weights = []
-      input_size = self.training_input.shape[1]
-      self.weights.append(np.random.randn(input_size, layers_structure[0]) * np.sqrt(1.0 / input_size))
-      for i in range(len(layers_structure) - 1):
+      input_size = layers_structure[0]+1
+      self.weights.append(np.random.randn(input_size, layers_structure[1]) * np.sqrt(1.0 / input_size))
+      for i in range(1,len(layers_structure) - 1):
          prev_size = layers_structure[i] + 1
          self.weights.append(
             np.random.randn(prev_size, layers_structure[i + 1]) * np.sqrt(1.0 / prev_size)
@@ -22,21 +20,24 @@ class MultilayerPerceptron():
 
       self.latest_adjustments = [np.zeros_like(w) for w in self.weights]
 
-   def train_perceptron(self, epochs, epsilon):
+   def train_perceptron(self,input,output, epochs, epsilon):
+      training_input=np.array(input)
+      training_input=MultilayerPerceptron.get_input_with_bias(training_input)
+      training_output=np.array(output)
       for epoch in range(epochs):
          total_error = 0
-         for Xμ in range(len(self.training_input)):
-            inputs = self.training_input[Xμ].reshape(1, -1)
+         for Xμ in range(len(training_input)):
+            inputs = training_input[Xμ].reshape(1, -1)
             activations,partial_results =self.feedfoward(inputs)
-            self.backpropagate(partial_results, self.training_output[Xμ], activations)
-            total_error += self.calculate_error(self.training_output[Xμ], activations[-1])
+            self.backpropagate(partial_results, training_output[Xμ], activations)
+            total_error += self.calculate_error(training_output[Xμ], activations[-1])
          if total_error<epsilon:
             print(f"Convergencia en epoch {epoch}")
             return
          print(f"epoch: {epoch} y Error:{total_error}")
-         permutation=np.random.permutation(len(self.training_input))
-         self.training_input=self.training_input[permutation]
-         self.training_output=self.training_output[permutation]
+         permutation=np.random.permutation(len(training_input))
+         training_input=training_input[permutation]
+         training_output=training_output[permutation]
       print("No convergencia :(")
    
    #feedfoward !!
