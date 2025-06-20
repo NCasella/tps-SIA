@@ -98,6 +98,27 @@ class MultilayerPerceptron():
       feedfoward=self.feedfoward(inputs)[0]
       return feedfoward[-1],feedfoward[len(self.layers_structure)//2][0][:-1]
 
+   def decode(self,input): 
+      outputs = [input]
+      partial_results = []
+
+      for i, weight_matrix in enumerate(self.weights[len(self.weights)//2-1:]):
+         hi = np.dot(outputs[-1], weight_matrix)
+         partial_results.append(hi)
+
+         activated = self.activation_function(hi)
+         if i != len(self.weights) - 1:
+            activated = np.hstack([
+               activated,
+               np.ones((activated.shape[0], 1))
+            ])
+
+         outputs.append(activated)
+
+      return outputs, partial_results
+
+
+
    def calculate_error(self, expected, output)->float:
       return np.sum((output>0.5).astype(int)!=expected.astype(int))
    
