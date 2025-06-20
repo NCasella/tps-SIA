@@ -1,5 +1,5 @@
 import numpy as np 
-from src.optimizers.optimizer import Optimizer
+from src.perceptrons.optimizers.optimizer import Optimizer
 
 class GradientDescent(Optimizer):
         

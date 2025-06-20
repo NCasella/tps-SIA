@@ -1,5 +1,5 @@
 import numpy as np
-from src.optimizers.optimizer import Optimizer
+from src.perceptrons.optimizers.optimizer import Optimizer
 
 class Adam(Optimizer):
     def __init__(self, learning_rate, alpha, beta1, beta2, epsilon, all_layers):
