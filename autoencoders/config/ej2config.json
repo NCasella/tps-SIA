@@ -1,0 +1,17 @@
+{
+    "epochs":20000,
+    "epsilon":1,
+    "learning_rate":1e-3,
+    "activation_function":"tanh",
+    "font":2,
+    "optimizer": "adam",
+    "beta":1,
+    "encoder_layers":[35,20,10,4],
+    "decoder_layers":[2,10,20,35],
+    "optimizer_alpha": 0.001,
+    "optimizer_beta_1": 0.9,
+    "optimizer_beta_2": 0.999,
+    "optimizer_epsilon": 1e-8,
+    "noise_function":"gaussian",
+    "standard_deviation": 0.3
+}
