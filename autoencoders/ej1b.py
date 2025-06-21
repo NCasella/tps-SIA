@@ -13,7 +13,7 @@ from src.noise_functions import get_noise_functions
 
 if __name__=="__main__":
     fonts=[font_1,font_2,font_3]
-
+    font_labels=[font1_labels,font2_labels,font3_labels]
 
     with open(sys.argv[1],"r") as f:
         config=json.load(f)
@@ -29,8 +29,8 @@ if __name__=="__main__":
     optimizer_beta1=config["optimizer_beta_1"]
     optimizer_beta2=config["optimizer_beta_2"]
     optimizer_epsilon=config["optimizer_epsilon"]
-    font_number=int(config["font"])-1
     noise_function=config["noise_function"]
+    font_number=int(config["font"])-1
 
 
     input=[to_bin_array(encoded_character).flatten() for encoded_character in fonts[font_number]]
@@ -50,5 +50,5 @@ if __name__=="__main__":
 
     for i,char in enumerate(noise_func(input)):
         output,_ =autoencoder.predict_output(char) 
-        save_letter_heatmap(char,f"out/noisy{font2_labels[i]}.png",binarize=False)
-        save_letter_heatmap(output,f"out/{font2_labels[i]}.png")
+        save_letter_heatmap(char,f"out/noisy{font_labels[font_number][i]}.png",binarize=False)
+        save_letter_heatmap(output,f"out/{font_labels[font_number][i]}.png")
