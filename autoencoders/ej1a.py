@@ -64,7 +64,7 @@ if __name__=="__main__":
     for i,char in enumerate(input):
         output,latent_space_coord =autoencoder.predict_output(char) 
         coords.append(latent_space_coord)
-        save_letter_heatmap(output,f"out/{font2_labels[i]}.png")
+        save_letter_heatmap(output,f"out/{font_labels[font_number][i]}.png")
     plot_latent_space(coords,font_labels[font_number])
         
 
