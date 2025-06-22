@@ -13,5 +13,6 @@
     "optimizer_beta_2": 0.999,
     "optimizer_epsilon": 1e-8,
     "noise_function":"gaussian",
-    "standard_deviation": 0.3
+    "standard_deviation": 0.3,
+    "input_directory": "images/5_emojis"
 }
