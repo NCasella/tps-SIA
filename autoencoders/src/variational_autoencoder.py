@@ -9,22 +9,24 @@ class VariationalAutoencoder:
     def encode(self, x: np.ndarray):
         """Encode input to latent space parameters (μ and logσ²)"""
         # Get encoder output (size 2*latent_dim)
-        h,h_partials = self.encoder.feedfoward(x)
+        h_out,h_partials = self.encoder.feedfoward(MultilayerPerceptron.get_input_with_bias(x))
         
-        # Split into μ (first half) and logσ² (second half)
-        mu, logvar = np.split(h, 2, axis=-1)
-        return mu, logvar, h, h_partials
+        latent_space_dim=self.decoder.layers_structure[0]
+
+        mu, logvar = h_out[-1].flatten()[:latent_space_dim],h_out[-1].flatten()[latent_space_dim:]
+        
+        return mu, logvar, h_out, h_partials
     
     def reparameterize(self, mu: np.ndarray, logvar: np.ndarray) -> np.ndarray:
         std = np.exp(0.5 * logvar)
-        eps = np.random.normal(size=len(std))
-        return mu + eps * std
+        eps = np.random.normal(size=std.shape)
+        return mu + eps * std,std,eps
 
     def kl_divergence(self, mu, log_var):
         return -0.5 * np.sum(1 + log_var - mu**2 - np.exp(log_var))
 
     def decode(self, z: np.ndarray) -> np.ndarray:
-        x,x_parcials=self.decoder.feedfoward(z)
+        x,x_parcials=self.decoder.feedfoward(MultilayerPerceptron.get_input_with_bias(z))
         return x[-1], x, x_parcials  
        
     def forward(self, x: np.ndarray):
@@ -42,7 +44,7 @@ class VariationalAutoencoder:
                 mu, log_var, enc_activations, enc_partials = self.encode(x)
 
                 # Sampling z
-                z = self.reparameterize(mu, log_var)
+                z,std,eps = self.reparameterize(mu, log_var)
 
                 # Decoder pass
                 x_hat, dec_acts, dec_partials = self.decode(z)
