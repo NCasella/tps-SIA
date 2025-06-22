@@ -61,27 +61,27 @@ if __name__=="__main__":
     input=[png_to_rgba_array(file) for file in png_files]
     print(input)
 
-    vartiational_autoencoder: VariationalAutoencoder=VariationalAutoencoder(encoder,decoder)
-    vartiational_autoencoder.train(input,epochs)
-    num_generate = 5
-    generated_samples = vartiational_autoencoder.generate(num_generate)  # shape (num_generate, data_dim)
+    # Assuming you already trained your VAE
+    vae = VariationalAutoencoder(input_dim=1024, hidden_dim=128, latent_dim=8)
+    vae.train(input, epochs)
 
-    # 4. Guardar las muestras generadas en archivos PNG
+    num_generate = 5
+    generated_samples = vae.generate(num_generate)  # shape (num_generate, 256)
+
     output_dir = 'out'
     os.makedirs(output_dir, exist_ok=True)
+
     for i, sample in enumerate(generated_samples):
-        # sample puede venir como vector plano, por ejemplo shape (16*16*4,) = (1024,)
-        # Lo redimensionamos a (16,16,4)
+        # Reshape from (1024,) to (16, 16, 4)
         img_array = sample.reshape((16, 16, 4))
 
-        # Si los valores están en float (ej: 0-1), convertimos a uint8 0-255
-        if img_array.dtype != np.uint8:
-            img_array = np.clip(img_array * 255, 0, 255).astype(np.uint8)
+        # Convert float [0,1] to uint8 [0,255]
+        img_array = np.clip(img_array * 255, 0, 255).astype(np.uint8)
 
-        # Crear imagen PIL
+        # Create RGBA image
         img = Image.fromarray(img_array, mode='RGBA')
 
-        # Guardar
+        # Save
         filename = os.path.join(output_dir, f"generated_{i}.png")
         img.save(filename)
         print(f"Saved {filename}")
