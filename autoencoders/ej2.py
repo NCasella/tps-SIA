@@ -61,27 +61,26 @@ if __name__=="__main__":
     input=[png_to_rgba_array(file) for file in png_files]
     print(input)
 
-    # Assuming you already trained your VAE
-    vae = VariationalAutoencoder(input_dim=1024, hidden_dim=128, latent_dim=8)
+    print(decode_layers_config)
+
+    activation_function, activation_derivate = get_sigmoid_function_and_derivate(1, function)
+    vae = VariationalAutoencoder(encode_layers_config, decode_layers_config, activation_function, activation_derivate, learning_rate)
     vae.train(input, epochs)
 
     num_generate = 5
-    generated_samples = vae.generate(num_generate)  # shape (num_generate, 256)
+    generated_samples = vae.generate(num_generate)
 
     output_dir = 'out'
     os.makedirs(output_dir, exist_ok=True)
 
     for i, sample in enumerate(generated_samples):
-        # Reshape from (1024,) to (16, 16, 4)
         img_array = sample.reshape((16, 16, 4))
 
-        # Convert float [0,1] to uint8 [0,255]
-        img_array = np.clip(img_array * 255, 0, 255).astype(np.uint8)
+        img_array = np.clip(img_array, 0, 1)
+        img_array = (img_array * 255).astype(np.uint8)
 
-        # Create RGBA image
         img = Image.fromarray(img_array, mode='RGBA')
 
-        # Save
         filename = os.path.join(output_dir, f"generated_{i}.png")
         img.save(filename)
         print(f"Saved {filename}")
