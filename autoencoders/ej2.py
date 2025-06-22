@@ -1,6 +1,8 @@
 import json
 import os
 import sys
+from PIL import Image
+import numpy as np
 from src.perceptrons.multilayer_perceptron import MultilayerPerceptron
 from src.perceptrons.sigmoid_functions import get_sigmoid_function_and_derivate
 from src.utils import png_to_rgba_array
@@ -61,3 +63,28 @@ if __name__=="__main__":
 
     vartiational_autoencoder: VariationalAutoencoder=VariationalAutoencoder(encoder,decoder)
     vartiational_autoencoder.train(input,epochs)
+    num_generate = 5
+    generated_samples = vartiational_autoencoder.generate(num_generate)  # shape (num_generate, data_dim)
+
+    # 4. Guardar las muestras generadas en archivos PNG
+    output_dir = 'out'
+    os.makedirs(output_dir, exist_ok=True)
+    for i, sample in enumerate(generated_samples):
+        # sample puede venir como vector plano, por ejemplo shape (16*16*4,) = (1024,)
+        # Lo redimensionamos a (16,16,4)
+        img_array = sample.reshape((16, 16, 4))
+
+        # Si los valores están en float (ej: 0-1), convertimos a uint8 0-255
+        if img_array.dtype != np.uint8:
+            img_array = np.clip(img_array * 255, 0, 255).astype(np.uint8)
+
+        # Crear imagen PIL
+        img = Image.fromarray(img_array, mode='RGBA')
+
+        # Guardar
+        filename = os.path.join(output_dir, f"generated_{i}.png")
+        img.save(filename)
+        print(f"Saved {filename}")
+
+
+

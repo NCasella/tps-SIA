@@ -43,37 +43,67 @@ class VariationalAutoencoder:
                 # Encoder pass
                 mu, log_var, enc_activations, enc_partials = self.encode(x)
 
-                # Sampling z
-                z,std,eps = self.reparameterize(mu, log_var)
+                # Sample z
+                z, std, eps = self.reparameterize(mu, log_var)
 
                 # Decoder pass
-                x_hat, dec_acts, dec_partials = self.decode(z)
+                x_hat, dec_activations, dec_partials = self.decode(z)
 
-                # Loss calculation
+                # Compute losses
                 recon_loss = np.sum((x - x_hat) ** 2)
                 kl_loss = self.kl_divergence(mu, log_var)
                 loss = recon_loss + kl_loss
                 total_loss += loss
 
-                # Decoder backpropagation (reconstruction only)
-                err_out = (x_hat - x)
-                self.decoder.backpropagate(dec_partials, err_out, dec_acts)
+                # Decoder backpropagation: reconstruction error gradient
+                err_out = x_hat - x  # gradient of reconstruction loss wrt output
+                self.decoder.backpropagate(dec_partials, err_out, dec_activations)
 
+                # Gradient at latent space z from decoder backprop
                 delta = err_out * self.decoder.calculate_derivate(dec_partials[-1])
-                for l in range(len(self.decoder.weights) - 1, 0, -1):
-                    Wn = self.decoder.weights[l][:-1, :]
-                    delta = (delta @ Wn.T) * self.decoder.calculate_derivate(dec_partials[l - 1])
+                for l in range(len(self.decoder.weights) - 2, -1, -1):
+                    Wn = self.decoder.weights[l + 1][:-1, :]
+                    delta = (delta @ Wn.T) * self.decoder.calculate_derivate(dec_partials[l])
 
-                W0 = self.decoder.weights[0]
-                d_input = delta @ W0.T
-                dz = d_input[:, :self.decoder.layers_structure[0]]
+                # Gradient w.r.t input to decoder (latent vector z)
+                d_input = delta @ self.decoder.weights[0][:-1, :].T
 
-                # Combine with KL gradients
-                dz_mu = dz + mu
-                dz_logvar = dz * eps * std * 0.5 + 0.5 * (np.exp(log_var) - 1)
+                # Now split gradients for mu and logvar for encoder backpropagation
 
-                dz_combined = np.hstack([dz_mu, dz_logvar]).reshape(1, -1)
+                # Gradients from reconstruction error via z
+                dz_mu = d_input  # since dz/dmu = 1
 
+                # dz/dlogvar = 0.5 * eps * std (chain rule)
+                dz_logvar = d_input * eps * std * 0.5
+
+                # Gradients from KL divergence term:
+                # dKL/dmu = mu
+                # dKL/dlogvar = 0.5 * (exp(logvar) - 1)
+                dkl_mu = mu
+                dkl_logvar = 0.5 * (np.exp(log_var) - 1)
+
+                # Combine gradients
+                grad_mu = dz_mu + dkl_mu
+                grad_logvar = dz_logvar + dkl_logvar
+
+                dz_combined = np.hstack([grad_mu, grad_logvar]).reshape(1, -1)
+
+                # Encoder backpropagation
                 self.encoder.backpropagate(enc_partials, dz_combined, enc_activations)
 
             print(f"Epoch {epoch} | Loss: {total_loss:.4f}")
+
+    def generate(self, num_samples=1):
+        """
+        Genera nuevas muestras a partir del decoder del VAE.
+
+        Args:
+            num_samples: cantidad de muestras a generar.
+
+        Returns:
+            samples: numpy array con las muestras generadas.
+        """
+        latent_dim = self.decoder.layers_structure[0]
+        z = np.random.normal(size=(num_samples, latent_dim))
+        generated, _, _ = self.decode(z)
+        return generated
