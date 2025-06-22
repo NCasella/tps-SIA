@@ -17,7 +17,8 @@ if __name__=="__main__":
 
     with open(sys.argv[1],"r") as f:
         config=json.load(f)
-    layers_config=config["layers"]
+    encode_layers_config=config["encoder_layers"]
+    decode_layers_config=config["decoder_layers"]
     learning_rate=config["learning_rate"]
     function=config["activation_function"]
     f,df=get_sigmoid_function_and_derivate(1,function)
@@ -29,24 +30,28 @@ if __name__=="__main__":
     optimizer_beta2=config["optimizer_beta_2"]
     optimizer_epsilon=config["optimizer_epsilon"]
     
+
+    enc_input_size,dec_input_size = encode_layers_config[0],decode_layers_config[0]
+    encode_layer_shapes = []
+    decode_layer_shapes=[]
+    enc_current_size = enc_input_size + 1
+    dec_current_size=dec_input_size +1
+
+    for enc_layer_size,dec_layer_size in zip(encode_layers_config[1:],decode_layers_config[1:]):
+        encode_layer_shapes.append((enc_current_size, enc_layer_size))
+        decode_layer_shapes.append((dec_current_size, dec_layer_size))
+        enc_current_size=enc_layer_size + 1
+        dec_current_size=dec_layer_size + 1
+    
+    enc_opt=get_optimizer(optimizer_value ,learning_rate,optimizer_alpha,optimizer_beta1,optimizer_beta2,optimizer_epsilon, encode_layer_shapes)
+    dec_opt=get_optimizer(optimizer_value ,learning_rate,optimizer_alpha,optimizer_beta1,optimizer_beta2,optimizer_epsilon, decode_layer_shapes)
+
+
+
+    encoder=MultilayerPerceptron(learning_rate,f,df,encode_layers_config,enc_opt)
+    decoder=MultilayerPerceptron(learning_rate,f,df,decode_layers_config,dec_opt)
+
     input=[to_bin_array(encoded_character).flatten() for encoded_character in fonts[2]]
-    input_size = layers_config[0]
-    layer_shapes = []
-    current_size = input_size + 1
-    for layer_size in layers_config[1:]:
-        layer_shapes.append((current_size, layer_size))
-        current_size = layer_size + 1
-    encoder_layers=layer_shapes.copy()
-    encoder_layers[-1]*=2
-    decoder_layers=layer_shapes[::-1]
-    enc_opt=get_optimizer(optimizer_value ,learning_rate,optimizer_alpha,optimizer_beta1,optimizer_beta2,optimizer_epsilon, encoder_layers)
-    dec_opt=get_optimizer(optimizer_value ,learning_rate,optimizer_alpha,optimizer_beta1,optimizer_beta2,optimizer_epsilon, decoder_layers)
-
-
-
-    encoder=MultilayerPerceptron(learning_rate,f,df,layers_config,enc_opt)
-    decoder=MultilayerPerceptron(learning_rate,f,df,layers_config[::-1],dec_opt)
-
 
     vartiational_autoencoder: VariationalAutoencoder=VariationalAutoencoder(encoder,decoder)
     vartiational_autoencoder.train(input,epochs)
