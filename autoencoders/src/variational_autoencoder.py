@@ -50,7 +50,7 @@ class VariationalAutoencoder:
                 x_hat, dec_activations, dec_partials = self.decode(z)
 
                 # Compute losses
-                recon_loss = np.sum((x - x_hat) ** 2)
+                recon_loss = np.mean((x - x_hat) ** 2)
                 kl_loss = self.kl_divergence(mu, log_var)
                 loss = recon_loss + kl_loss
                 total_loss += loss
@@ -67,20 +67,20 @@ class VariationalAutoencoder:
 
                 # Gradient w.r.t input to decoder (latent vector z)
                 d_input = delta @ self.decoder.weights[0][:-1, :].T
-
+                latent_dim=self.decoder.layers_structure[0]
                 # Now split gradients for mu and logvar for encoder backpropagation
 
                 # Gradients from reconstruction error via z
                 dz_mu = d_input  # since dz/dmu = 1
 
                 # dz/dlogvar = 0.5 * eps * std (chain rule)
-                dz_logvar = d_input * eps * std * 0.5
+                dz_logvar = d_input * eps * std * 0.5/latent_dim
 
                 # Gradients from KL divergence term:
                 # dKL/dmu = mu
                 # dKL/dlogvar = 0.5 * (exp(logvar) - 1)
                 dkl_mu = mu
-                dkl_logvar = 0.5 * (np.exp(log_var) - 1)
+                dkl_logvar = 0.5 * (np.exp(log_var) - 1)/latent_dim
 
                 # Combine gradients
                 grad_mu = dz_mu + dkl_mu
@@ -107,3 +107,8 @@ class VariationalAutoencoder:
         z = np.random.normal(size=(num_samples, latent_dim))
         generated, _, _ = self.decode(z)
         return generated
+    def predict(self,x):
+        mu, log_var, enc_activations, enc_partials = self.encode(x)
+        z,std,eps = self.reparameterize(mu, log_var)
+        x_hat, dec_acts, dec_partials = self.decode(z)
+        return x_hat
