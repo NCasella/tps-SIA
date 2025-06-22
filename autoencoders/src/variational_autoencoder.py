@@ -50,21 +50,28 @@ class VariationalAutoencoder:
                 x_hat, dec_acts, dec_partials = self.decode(z)
 
                 # Loss calculation
-                recon_loss = np.sum((x_hat > 0.5).astype(int) != x.astype(int))
+                recon_loss = np.sum((x - x_hat) ** 2)
                 kl_loss = self.kl_divergence(mu, log_var)
                 loss = recon_loss + kl_loss
                 total_loss += loss
 
-                # Decoder backpropagation
-                self.decoder.backpropagate(dec_partials, x, dec_acts)
+                # Decoder backpropagation (reconstruction only)
+                err_out = (x_hat - x)
+                self.decoder.backpropagate(dec_partials, err_out, dec_acts)
 
-                # TODO 
-                # Encoder backpropagation (manually constructed gradient from decoder and KL)
-                decoder_weights = self.decoder.weights[0][:-1, :]  # skip decoder input bias
-                dz = (x_hat - x) @ decoder_weights.T
+                delta = err_out * self.decoder.calculate_derivate(dec_partials[-1])
+                for l in range(len(self.decoder.weights) - 1, 0, -1):
+                    Wn = self.decoder.weights[l][:-1, :]
+                    delta = (delta @ Wn.T) * self.decoder.calculate_derivate(dec_partials[l - 1])
 
+                W0 = self.decoder.weights[0]
+                d_input = delta @ W0.T
+                dz = d_input[:, :self.decoder.layers_structure[0]]
+
+                # Combine with KL gradients
                 dz_mu = dz + mu
-                dz_logvar = 0.5 * (np.exp(log_var) - 1)
+                dz_logvar = dz * eps * std * 0.5 + 0.5 * (np.exp(log_var) - 1)
+
                 dz_combined = np.hstack([dz_mu, dz_logvar]).reshape(1, -1)
 
                 self.encoder.backpropagate(enc_partials, dz_combined, enc_activations)
