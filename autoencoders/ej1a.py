@@ -26,6 +26,18 @@ def plot_latent_space(X, labels=None, title="Latent Space", figsize=(7, 5)):
     plt.grid(True)
     plt.savefig("latent_space.png")
 
+def generate_new_letters(autoencoder, start_latent, end_latent, steps=10):
+    """
+    Interpolates between two latent coordinates and generates new letters.
+    """
+    interpolated = [
+        start_latent + (end_latent - start_latent) * t
+        for t in np.linspace(0, 1, steps)
+    ]
+    for idx, latent in enumerate(interpolated):
+        output, _ = autoencoder.decode(latent)
+        save_letter_heatmap(output[-1], f"out/interpolated_{idx}.png")
+    
 
 if __name__=="__main__":
     fonts=[font_1,font_2,font_3]
@@ -66,6 +78,12 @@ if __name__=="__main__":
         coords.append(latent_space_coord)
         save_letter_heatmap(output,f"out/{font_labels[font_number][i]}.png")
     plot_latent_space(coords,font_labels[font_number])
+    
+    chosen_idx=np.random.choice(len(coords), size=2, replace=False)
+    start_latent_coord=coords[chosen_idx[0]]
+    end_latent_coord=coords[chosen_idx[1]]
+    generate_new_letters(autoencoder,start_latent_coord,end_latent_coord)
+    
         
 
 
