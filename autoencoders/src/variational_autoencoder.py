@@ -1,7 +1,7 @@
 import numpy as np
 
 class VariationalAutoencoder:
-    def __init__(self, encoder_layers, decoder_layers, activation_function, activation_derivative, learning_rate=0.001):
+    def __init__(self, encoder_layers, decoder_layers, activation_function, activation_derivative, learning_rate=0.001, optimizer=None):
         """
         encoder_layers: List[int] e.g. [input_dim, ..., 2*latent_dim]
                         The last layer size must be 2*latent_dim (mu and logvar)
@@ -16,10 +16,11 @@ class VariationalAutoencoder:
         self.act = activation_function
         self.act_deriv = activation_derivative
         self.lr = learning_rate
+        self.optimizer = optimizer
 
-        self.enc_weights = [np.random.randn(in_dim + 1, out_dim) * 0.01
+        self.enc_weights = [np.random.randn(in_dim + 1, out_dim) * 0.1
                             for in_dim, out_dim in zip(encoder_layers[:-1], encoder_layers[1:])]
-        self.dec_weights = [np.random.randn(in_dim + 1, out_dim) * 0.01
+        self.dec_weights = [np.random.randn(in_dim + 1, out_dim) * 0.1
                             for in_dim, out_dim in zip(decoder_layers[:-1], decoder_layers[1:])]
 
         self.latent_dim = decoder_layers[0]
@@ -82,14 +83,16 @@ class VariationalAutoencoder:
         dec_grads = self.mlp_backward(self.dec_weights, dec_acts, dec_preacts, d_x_hat)
 
         delta = d_x_hat
+        dz = None
+
         for i in reversed(range(len(self.dec_weights))):
             act_deriv = self.act_deriv(dec_preacts[i])
             delta = delta * act_deriv
-            W_no_bias = self.dec_weights[i][:-1, :]
+            x_b = self.add_bias(dec_acts[i])
             if i == 0:
+                W_no_bias = self.dec_weights[i][:-1, :]
                 dz = delta @ W_no_bias.T
-            if i > 0:
-                delta = delta @ W_no_bias.T
+            delta = delta @ self.dec_weights[i][:-1, :].T
 
         latent_dim = self.latent_dim
         dz_mu = dz
@@ -105,10 +108,14 @@ class VariationalAutoencoder:
 
         enc_grads = self.mlp_backward(self.enc_weights, enc_acts, enc_preacts, grad_combined)
 
-        for i in range(len(self.enc_weights)):
-            self.enc_weights[i] -= self.lr * enc_grads[i]
-        for i in range(len(self.dec_weights)):
-            self.dec_weights[i] -= self.lr * dec_grads[i]
+        if self.optimizer is not None:
+            self.enc_weights = self.optimizer(self.enc_weights, enc_grads)
+            self.dec_weights = self.optimizer(self.dec_weights, dec_grads)
+        else:
+            for i in range(len(self.enc_weights)):
+                self.enc_weights[i] -= self.lr * enc_grads[i]
+            for i in range(len(self.dec_weights)):
+                self.dec_weights[i] -= self.lr * dec_grads[i]
 
     def train(self, dataset, epochs=10):
         for epoch in range(epochs):

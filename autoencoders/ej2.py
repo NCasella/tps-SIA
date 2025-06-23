@@ -59,7 +59,29 @@ if __name__=="__main__":
     decoder=MultilayerPerceptron(learning_rate,f,df,decode_layers_config,dec_opt)
 
     input=[png_to_rgba_array(file) for file in png_files]
-    print(input)
+
+    greyscale_input = []
+
+    for file in png_files:
+        img = png_to_rgba_array(file)  # shape: (16, 16, 4)
+        img = img.reshape((16, 16, 4))
+        h, w, _ = img.shape
+
+        # Create a new array to hold processed image
+        new_img = np.empty_like(img, dtype=np.float32)
+
+        for y in range(h):
+            for x in range(w):
+                r, g, b, a = img[y, x]
+                gray = (r + g + b) / 3
+                new_img[y, x, 0] = gray
+                new_img[y, x, 1] = gray
+                new_img[y, x, 2] = gray
+                new_img[y, x, 3] = 1.0  # Normalize alpha too
+
+        greyscale_input.append(new_img.flatten())
+
+    #input = greyscale_input
 
     print(decode_layers_config)
 
