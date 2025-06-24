@@ -128,7 +128,7 @@ class VariationalAutoencoder:
                 loss = recon_loss + kl
                 total_loss += loss
                 self.backward(x, x_hat, mu, logvar, enc_acts, enc_preacts, dec_acts, dec_preacts, z, std, eps)
-            print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss:.4f}")
+            print(f"Epoch {epoch + 1}/{epochs} Error: {total_loss:.4f}")
 
     def generate(self, num_samples=1):
         z = np.random.randn(num_samples, self.latent_dim)
