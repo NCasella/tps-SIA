@@ -1,18 +1,18 @@
 {
-    "epochs":1000,
+    "epochs":500,
     "epsilon":1,
     "learning_rate":1e-3,
-    "activation_function":"relu",
+    "activation_function":"softplus",
     "font":2,
     "optimizer": "adam",
     "beta":1,
-    "encoder_layers":[1024,500,20,10,4],
-    "decoder_layers":[2,10,20,500,1024],
+    "encoder_layers":[1024,300, 40, 20, 10],
+    "decoder_layers":[5, 20, 40,300, 1024],
     "optimizer_alpha": 0.001,
     "optimizer_beta_1": 0.9,
     "optimizer_beta_2": 0.999,
     "optimizer_epsilon": 1e-8,
     "noise_function":"gaussian",
     "standard_deviation": 0.3,
-    "input_directory": "images/5_emojis"
+    "input_directory": "images/less_emojis"
 }

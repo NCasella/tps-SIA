@@ -59,29 +59,50 @@ if __name__=="__main__":
     decoder=MultilayerPerceptron(learning_rate,f,df,decode_layers_config,dec_opt)
 
     input=[png_to_rgba_array(file) for file in png_files]
-    print(input)
 
-    vartiational_autoencoder: VariationalAutoencoder=VariationalAutoencoder(encoder,decoder)
-    vartiational_autoencoder.train(input,epochs)
+    greyscale_input = []
+
+    for file in png_files:
+        img = png_to_rgba_array(file)  # shape: (16, 16, 4)
+        img = img.reshape((16, 16, 4))
+        h, w, _ = img.shape
+
+        # Create a new array to hold processed image
+        new_img = np.empty_like(img, dtype=np.float32)
+
+        for y in range(h):
+            for x in range(w):
+                r, g, b, a = img[y, x]
+                gray = (r + g + b) / 3
+                new_img[y, x, 0] = gray
+                new_img[y, x, 1] = gray
+                new_img[y, x, 2] = gray
+                new_img[y, x, 3] = 1.0  # Normalize alpha too
+
+        greyscale_input.append(new_img.flatten())
+
+    #input = greyscale_input
+
+    print(decode_layers_config)
+
+    activation_function, activation_derivate = get_sigmoid_function_and_derivate(1, function)
+    vae = VariationalAutoencoder(encode_layers_config, decode_layers_config, activation_function, activation_derivate, learning_rate)
+    vae.train(input, epochs)
+
     num_generate = 5
-    generated_samples = vartiational_autoencoder.generate(num_generate)  # shape (num_generate, data_dim)
+    generated_samples = vae.generate(num_generate)
 
-    # 4. Guardar las muestras generadas en archivos PNG
     output_dir = 'out'
     os.makedirs(output_dir, exist_ok=True)
+
     for i, sample in enumerate(generated_samples):
-        # sample puede venir como vector plano, por ejemplo shape (16*16*4,) = (1024,)
-        # Lo redimensionamos a (16,16,4)
         img_array = sample.reshape((16, 16, 4))
 
-        # Si los valores están en float (ej: 0-1), convertimos a uint8 0-255
-        if img_array.dtype != np.uint8:
-            img_array = np.clip(img_array * 255, 0, 255).astype(np.uint8)
+        img_array = np.clip(img_array, 0, 1)
+        img_array = (img_array * 255).astype(np.uint8)
 
-        # Crear imagen PIL
         img = Image.fromarray(img_array, mode='RGBA')
 
-        # Guardar
         filename = os.path.join(output_dir, f"generated_{i}.png")
         img.save(filename)
         print(f"Saved {filename}")
