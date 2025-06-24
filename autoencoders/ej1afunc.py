@@ -48,9 +48,62 @@ if __name__=="__main__":
     errors_after_5k = [0 for _ in range(10)]
 
     activation_functions = ["logistic", "tanh", "relu", "softplus"]
+    f, df = get_sigmoid_function_and_derivate(1,"tanh")
 
-    for af in range(4):
-        f, df = get_sigmoid_function_and_derivate(1,activation_functions[af])
+    layer_configs1 = [
+        [35,2,35],
+        [35, 10, 2, 10, 35],
+        [35, 18, 2, 18, 35],
+        [35, 25, 2, 25, 35],
+        [35, 30, 2, 30, 35],
+        [35, 50, 2, 50, 35],
+        [35, 80, 2, 80, 35]
+    ]
+    layer_config_strings1 = [
+        "35-2-35", 
+        "35-10-2-10-35",
+        "35-18-2-18-35",
+        "35-25-2-25-35",
+        "35-30-2-30-35",
+        "35-50-2-50-35",
+        "35-80-2-80-35"
+    ]
+
+    layer_configs = [
+        [35, 20, 10, 2, 10, 20, 35],
+        [35, 30, 20, 2, 20, 30, 35],
+        [35, 32, 28, 2, 28, 32, 35],
+        [35, 50, 20, 2, 20, 50, 35],
+        [35, 80, 50, 2, 50, 80, 35],
+    ]
+    layer_config_strings = [
+        "35-20-10-2-10-20-35",
+        "35-30-20-2-20-30-35",
+        "35-32-28-2-28-32-35",
+        "35-50-20-2-20-50-35",
+        "35-80-50-2-50-80-35",
+    ]
+
+    layer_configs3 = [
+        [35, 30, 20, 10, 2, 10, 20, 30, 35],
+        [35, 32, 28, 20, 2, 20, 28, 32, 35],
+        [35, 50, 30, 20, 2, 20, 30, 50, 35],
+        [35, 40, 30, 20, 2, 20, 30, 40, 35],
+        [35, 80, 50, 30, 2, 30, 50, 80, 35],
+    ]
+    layer_config_strings3 = [
+        "35-30-20-10-2-10-20-30-35",
+        "35-32-28-20-2-20-28-32-35",
+        "35-50-30-20-2-20-30-50-35",
+        "35-40-30-20-2-20-30-40-35",
+        "35-80-50-30-2-30-50-80-35",
+    ]
+
+    optimizers = ["adam", "sgd", "momentum"]
+
+    for conf in range(5):
+        layers_config = layer_configs[conf]
+        # optimizer_value = optimizers[conf]
         input=[to_bin_array(encoded_character).flatten() for encoded_character in fonts[font_number]]
         input_size = layers_config[0]
         layer_shapes = []
@@ -65,7 +118,7 @@ if __name__=="__main__":
         errors = autoencoder.train_perceptron(input,input,epochs,epsilon=epsilon)
         coords=[]
 
-        plt.plot(errors, label=f"f = {activation_functions[af]}")
+        plt.plot(errors, label=f"{layer_config_strings[conf]}")
         total_error = 0
         for i,char in enumerate(input):
             output,latent_space_coord =autoencoder.predict_output(char) 
@@ -75,7 +128,8 @@ if __name__=="__main__":
     plt.ylabel("Error")
     plt.title("Error vs Epochs")
     plt.legend()
-    plt.savefig(f"error_vs_epochs_{len(layers_config)}.png")
-        
+    plt.grid(True)
+    plt.savefig("7layers_comparison.png")
+    plt.show()
 
 

@@ -3,7 +3,7 @@ import numpy as np
 from src.perceptrons.optimizers.optimizer import Optimizer
 
 class MultilayerPerceptron():
-   def __init__(self,learning_rate:float,activation_function:callable,activation_function_derivate:callable,layers_structure:list[int],optimizer:Optimizer = None):
+   def __init__(self,learning_rate:float,activation_function:callable,activation_function_derivate:callable,layers_structure:list[int],optimizer:Optimizer = None, seed:int = 777):
       self.activation_function=activation_function
       self.learning_rate=learning_rate
       self.activation_function_derivate=activation_function_derivate
@@ -11,6 +11,7 @@ class MultilayerPerceptron():
       self.optimizer = optimizer
       self.weights = []
       input_size = layers_structure[0]+1
+      np.random.seed(seed)
       self.weights.append(np.random.randn(input_size, layers_structure[1]) * np.sqrt(1.0 / input_size))
       for i in range(1,len(layers_structure) - 1):
          prev_size = layers_structure[i] + 1
@@ -21,24 +22,30 @@ class MultilayerPerceptron():
       self.latest_adjustments = [np.zeros_like(w) for w in self.weights]
 
    def train_perceptron(self,input,output, epochs, epsilon):
-      training_input=np.array(input)
-      training_input=MultilayerPerceptron.get_input_with_bias(training_input)
+      errors = []
+      training_input_wo_bias=np.array(input)
+      training_input=MultilayerPerceptron.get_input_with_bias(training_input_wo_bias)
       training_output=np.array(output)
       for epoch in range(epochs):
-         total_error = 0
          for Xμ in range(len(training_input)):
             inputs = training_input[Xμ].reshape(1, -1)
             activations,partial_results =self.feedfoward(inputs)
             self.backpropagate(partial_results, training_output[Xμ], activations)
-            total_error += self.calculate_error(training_output[Xμ], activations[-1])
+         total_error=0
+         for char in training_input_wo_bias:
+            predicted_output, latent_space_coord = self.predict_output(char)
+            total_error += self.calculate_error(char, predicted_output)
          if total_error<epsilon:
+            errors.append(total_error)
             print(f"Convergencia en epoch {epoch}")
-            return
-         print(f"epoch: {epoch} y Error:{total_error}")
+            return errors
+         # print(f"epoch: {epoch} y Error:{total_error}")
+         errors.append(total_error)
          permutation=np.random.permutation(len(training_input))
          training_input=training_input[permutation]
          training_output=training_output[permutation]
-      print("No convergencia :(")
+      # print("No convergencia :(")
+      return errors
    
    #feedfoward !!
    def feedfoward(self, input)->tuple[list[Any],list[Any]]:
