@@ -1,0 +1,16 @@
+{
+    "epochs":3000,
+    "epsilon":1,
+    "learning_rate":1e-3,
+    "activation_function":"tanh",
+    "font":3,
+    "optimizer": "adam",
+    "beta":1,
+    "layers":[35, 50, 25, 2, 25, 50, 35],
+    "optimizer_alpha": 0.001,
+    "optimizer_beta_1": 0.9,
+    "optimizer_beta_2": 0.999,
+    "optimizer_epsilon": 1e-8,
+    "noise_function":"gaussian",
+    "standard_deviation": 0.3
+}
